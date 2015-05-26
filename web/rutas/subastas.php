@@ -13,4 +13,4 @@ $app->get('/subastas', function () use ($app) {
 	
 	$app->render('subastas.html', array('subastas' => $data));
 
-})->name('subastas');
+})->name('listado-subastas');
