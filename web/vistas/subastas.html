@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+	
+	{% if flash.error %}
+		<!-- errores -->
+		<div class="alert alert-danger" role="alert">{{ flash.error }}</div>
+	{% else %}
+		<!-- listado -->
+		<ul>
+			{% for subasta in subastas %}
+				<li>{{ subasta.titulo }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+{% endblock %}

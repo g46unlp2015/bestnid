@@ -35,6 +35,6 @@ $view->parserExtensions = array(
 // ------------------------------------------------------------------------
 
 require './rutas/index.php';
-require './rutas/usuarios.php';
+require './rutas/subastas.php';
 
 $app->run();
