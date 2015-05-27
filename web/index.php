@@ -16,6 +16,8 @@ $app->container->singleton('db', function() {
 	return new PDO('mysql:host=127.0.0.1;dbname=bestnid', 'root', '');
 });
 
+$app->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
 // ------------------------------------------------------------------------
 // vistas
 // ------------------------------------------------------------------------
@@ -35,6 +37,6 @@ $view->parserExtensions = array(
 // ------------------------------------------------------------------------
 
 require './rutas/index.php';
-require './rutas/subastas.php';
+require './rutas/buscar.php';
 
 $app->run();

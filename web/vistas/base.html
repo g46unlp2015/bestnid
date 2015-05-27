@@ -5,16 +5,31 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>bestnid</title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/css/base.css">
 </head>
 <body>
 	<div class="container">
 
 		{% block menu %}
-		<div class="row">
-			<div class="page-header">
-				<a href="{{ urlFor('index') }}"><h1>bestnid</h1></a>
+
+		<div class="header clearfix">
+			<ul class="nav nav-pills pull-right">
+		      <li role="presentation"><a href="#">Login</a></li>
+		      <li role="presentation"><a href="#">Ayuda</a></li>
+		    </ul>
+
+			<div class="pull-left">
+				<a class="navbar-brand" href="{{ urlFor('index') }}">bestnid</a>
 			</div>
+			
+			<form class="navbar-form form-inline pull-left" method="POST" action="{{ urlFor('buscar-subastas') }}">
+			  <div class="form-group">
+				<input type="text" id="buscador" class="form-control" name="q" required>
+			  </div>
+			  <button type="submit" class="btn btn-default">Buscar</button>
+			</form>
 		</div>
+
 		{% endblock %}
 
 		{% block contenido %}
