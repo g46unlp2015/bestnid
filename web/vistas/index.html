@@ -1,63 +1,63 @@
 {% extends "base.html" %}
 
 {% block contenido %}
-	
-	{% if flash.error %}
-		<!-- errores -->
-		<div class="alert alert-danger" role="alert">{{ flash.error }}</div>
-	{% else %}
+  
+  {% if flash.error %}
+    <!-- errores -->
+    <div class="alert alert-danger" role="alert">{{ flash.error }}</div>
+  {% else %}
 
-		<div class="row">
-			
-			<!-- paneles -->
-			<div class="col-md-2">
-				<div class="panel panel-default">
-				  <div class="panel-heading">
-				    <h3 class="panel-title">ordenar por</h3>
-				  </div>
-				  <div class="panel-body">
-				    <ul class="list-unstyled">
-				      <li>orden1</li>
-				      <li>orden2</li>
-				    </ul>
-				  </div>
-				</div>
+    <div class="row">
+      
+      <!-- paneles -->
+      <div class="col-md-2">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">ordenar por</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-unstyled">
+              <li>orden1</li>
+              <li>orden2</li>
+            </ul>
+          </div>
+        </div>
 
-				<div class="panel panel-default">
-				  <div class="panel-heading">
-				    <h3 class="panel-title">categorias</h3>
-				  </div>
-				  <div class="panel-body">
-				    <ul class="list-unstyled">
-				      <li>categoria1</li>
-				      <li>categoria2</li>
-				      <li>categoria3</li>
-				    </ul>
-				  </div>
-				</div>
-			</div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">categorias</h3>
+          </div>
+          <div class="panel-body">
+            <ul class="list-unstyled">
+              <li>categoria1</li>
+              <li>categoria2</li>
+              <li>categoria3</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-			<!-- listado -->
-			<div class="col-md-10">
-			  <div class="subastas">
-			    <p class="lead">Subastas</p>
-  				{% for subasta in subastas %}
-    				<div class="media">
-    				  <div class="media-left">
-    					<a href="#">
-    					  <img class="media-object" alt="120x120" src="" style="width: 120px; height: 120px;">
-    					</a>
-    				  </div>
-    				  <div class="media-body">
-    					<h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
-    					{{ subasta.descripcion }}
-    				  </div>
-    				</div>
-  				{% endfor %}
-			  </div>
-			</div>
-		</div>
-		
-	{% endif %}
+      <!-- listado -->
+      <div class="col-md-10">
+        <div class="subastas">
+          <p class="lead">Subastas</p>
+          {% for subasta in subastas %}
+            <div class="media">
+              <div class="media-left">
+              <a href="#">
+                <img class="media-object" alt="120x120" src="" style="width: 120px; height: 120px;">
+              </a>
+              </div>
+              <div class="media-body">
+              <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
+              {{ subasta.descripcion }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+  {% endif %}
 
 {% endblock %}
