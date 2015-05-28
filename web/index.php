@@ -1,5 +1,6 @@
 <?php
 require './dependencias/autoload.php';
+require './config.php';
 
 // ------------------------------------------------------------------------
 // setup
@@ -12,9 +13,12 @@ $app = new \Slim\Slim (array(
 	'templates.path' => './vistas'
 ));
 
-$app->container->singleton('db', function() {
-	return new PDO('mysql:host=127.0.0.1;dbname=bestnid', 'root', '');
+$app->container->singleton('db', function() use ($config) {
+	return new PDO('mysql:host='.$config['db.host'].';dbname='.$config['db.name'], 
+		$config['db.user'], $config['db.pass']
+	);
 });
+
 
 $app->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
