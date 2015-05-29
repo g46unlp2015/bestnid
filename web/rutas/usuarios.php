@@ -59,7 +59,7 @@ $app->post('/login', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT username, password FROM usuarios
+		$query = $app->db->prepare("SELECT id, username, password FROM usuarios
 							  WHERE username = :username AND password = :password
 							  LIMIT 1");
 
@@ -70,7 +70,7 @@ $app->post('/login', function() use ($app) {
 			)
 		);
 
-		$user = $query->fetch();
+		$user = $query->fetch(PDO::FETCH_ASSOC);
 
 	}
 
@@ -83,9 +83,25 @@ $app->post('/login', function() use ($app) {
 		$app->flash('error', 'usuario o contraseña incorrecta');
 		$app->redirect('/login');
 	} else {
+		$_SESSION['usuario']['id'] = $user['id'];
+		$_SESSION['usuario']['username'] = $user['username'];
 		$app->flash('mensaje', 'has iniciado sesión');
-	}
+	}	
 
 	$app->redirect('/');
 
 })->name('login-post');
+
+// ------------------------------------------------------------------------
+// logout
+// ------------------------------------------------------------------------
+
+$app->get('/logout', function() use ($app) {
+	
+	if( isset($_SESSION['usuario']) ) {
+		session_destroy();
+	}
+
+	$app->redirect('/');
+
+})->name('logout');

@@ -14,7 +14,12 @@
 
     <div class="header clearfix">
       <ul class="nav nav-pills pull-right">
-          <li role="presentation"><a href="{{ urlFor('login') }}">Login</a></li>
+          {% if session %}
+            <li role="presentation"><a href="#">{{ session.username }}</a></li>
+            <li role="presentation"><a href="{{ urlFor('logout') }}">Logout</a></li>
+          {% else %}
+            <li role="presentation"><a href="{{ urlFor('login') }}">Login</a></li>
+          {% endif %}
           <li role="presentation"><a href="#">Ayuda</a></li>
         </ul>
 

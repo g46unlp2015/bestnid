@@ -1,5 +1,9 @@
 <?php
 
+// ------------------------------------------------------------------------
+// listado principal
+// ------------------------------------------------------------------------
+
 $app->get('/', function () use ($app) {
 
 	try {
@@ -16,4 +20,3 @@ $app->get('/', function () use ($app) {
 	$app->render('index.html', array('subastas' => $data));
 
 })->name('index');
-

@@ -19,7 +19,6 @@ $app->container->singleton('db', function() use ($config) {
 	);
 });
 
-
 $app->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // ------------------------------------------------------------------------
@@ -37,11 +36,23 @@ $view->parserExtensions = array(
 );
 
 // ------------------------------------------------------------------------
+// informacion de sesion en las vistas
+// ------------------------------------------------------------------------
+
+$app->hook('slim.before.dispatch', function() use ($app) {
+
+	if ( isset($_SESSION['usuario']) ) {
+		$app->view()->setData('session', $_SESSION['usuario']);
+	}
+
+});
+
+// ------------------------------------------------------------------------
 // rutas
 // ------------------------------------------------------------------------
 
 foreach (glob('./rutas/*.php') as $ruta) {
     require $ruta;
-}
+}	
 
 $app->run();
