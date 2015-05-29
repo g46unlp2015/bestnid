@@ -40,7 +40,8 @@ $view->parserExtensions = array(
 // rutas
 // ------------------------------------------------------------------------
 
-require './rutas/index.php';
-require './rutas/buscar.php';
+foreach (glob('./rutas/*.php') as $ruta) {
+    require $ruta;
+}
 
 $app->run();

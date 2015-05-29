@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  {% if flash.mensaje %}
+    <!-- mensajes -->
+    <div class="alert alert-success" role="alert">{{ flash.mensaje }}</div>
+  {% endif %}
+
+  
+  {% if flash.error %}
+    <!-- errores -->
+    <div class="alert alert-danger" role="alert">{{ flash.error }}</div>
+  {% endif %}
+
+	<ul class="list-unstyled">
+
+    {% if usuarios %}
+
+  		{% for usuario in usuarios %}
+  			<li>{{ usuario.nombre }} ({{ usuario.username }}) - <a class="text-danger" href="{{ urlFor('admin-borrar-usuario', { 'id': usuario.id }) }}">borrar</a></li>
+  		{% endfor %}
+
+    {% endif %}
+    
+	</ul>
+
+{% endblock %}

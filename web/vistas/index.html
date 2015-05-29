@@ -2,10 +2,15 @@
 
 {% block contenido %}
   
+  {% if flash.mensaje %}
+    <!-- mensajes -->
+    <div class="alert alert-success" role="alert">{{ flash.mensaje }}</div>
+  {% endif %}
+  
   {% if flash.error %}
     <!-- errores -->
     <div class="alert alert-danger" role="alert">{{ flash.error }}</div>
-  {% else %}
+  {% endif %}
 
     <div class="row">
       
@@ -41,23 +46,23 @@
       <div class="col-md-10">
         <div class="subastas">
           <p class="lead">Subastas</p>
-          {% for subasta in subastas %}
-            <div class="media">
-              <div class="media-left">
-              <a href="#">
-                <img class="media-object" alt="120x120" src="" style="width: 120px; height: 120px;">
-              </a>
+          {% if subastas %}
+            {% for subasta in subastas %}
+              <div class="media">
+                <div class="media-left">
+                <a href="#">
+                  <img class="media-object" alt="120x120" src="" style="width: 120px; height: 120px;">
+                </a>
+                </div>
+                <div class="media-body">
+                <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
+                {{ subasta.descripcion }}
+                </div>
               </div>
-              <div class="media-body">
-              <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
-              {{ subasta.descripcion }}
-              </div>
-            </div>
-          {% endfor %}
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
     </div>
-    
-  {% endif %}
 
 {% endblock %}

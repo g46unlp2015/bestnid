@@ -4,7 +4,7 @@ $app->get('/', function () use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT * FROM subastas LIMIT 10");
+		$query = $app->db->prepare("SELECT * FROM subastas");
 		$ok = $query->execute();
 
 		$data = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -16,3 +16,4 @@ $app->get('/', function () use ($app) {
 	$app->render('index.html', array('subastas' => $data));
 
 })->name('index');
+
