@@ -2,17 +2,6 @@
 
 {% block contenido %}
 
-	{% if flash.mensaje %}
-		<!-- mensajes -->
-		<div class="alert alert-success" role="alert">{{ flash.mensaje }}</div>
-	{% endif %}
-
-	
-	{% if flash.error %}
-		<!-- errores -->
-		<div class="alert alert-danger" role="alert">{{ flash.error }}</div>
-	{% endif %}
-	
 	<!-- formulario -->
 	<div class="panel panel-default">
 		<div class="panel-heading">registracion</div>
