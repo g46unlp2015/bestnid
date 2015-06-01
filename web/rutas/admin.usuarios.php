@@ -12,19 +12,17 @@ $app->group('/admin', function () use ($app) {
 			
 			try {
 
-				$query = $app->db->prepare("SELECT id, username, nombre FROM usuarios");
+				$query = $app->db->prepare("SELECT id, email, nombre FROM usuarios");
 				$query->execute();
 				$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
+			} catch (PDOException $e) {
+				$app->flash('error', 'Hubo un error en la base de datos');
 			}
 
-			catch (PDOException $e) {
-				$app->flash('error', 'hubo un error en la base de datos');
-			}
-
-			$app->render('admin/usuarios.html', array(
-				'usuarios' => $data)
-			);
+			$app->render('admin/usuarios.html', [
+				'usuarios' => $data
+			]);
 
 		})->name('admin-usuarios');
 
@@ -42,23 +40,19 @@ $app->group('/admin', function () use ($app) {
 		// borrar
 		// ------------------------------------------------------------------------
 
-		$app->get('/:id/borrar', function ($id) use ($app) {
+		$app->get('/borrar/:id', function ($id) use ($app) {
 			$id = (int)$id;
 
 			try {
 
 				$query = $app->db->prepare("DELETE FROM usuarios WHERE id = :id LIMIT 1");
 				
-				$return = $query->execute(
-					array(
-						':id' => $id 
-					)
-				);
+				$return = $query->execute([
+					':id' => $id 
+				]);
 
-			}
-
-			catch (PDOException $e) {
-				$app->flash('error', 'hubo un error en la base de datos');
+			} catch (PDOException $e) {
+				$app->flash('error', 'Hubo un error en la base de datos');
 			}
 			
 			if ( $return == 0 ) {

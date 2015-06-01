@@ -1,58 +1,55 @@
 {% extends "base.html" %}
 
 {% block contenido %}
+
+  <!-- destacadas -->
+  <div class="row">
+    <!-- <p class="lead"><span class="glyphicon glyphicon-fire"></span> Destacadas</p> -->
+    {% for subasta in subastas | slice(0,3) %}
+      <div class="col-sm-6 col-md-4">
+        <div class="thumbnail subasta-destacada">
+          <a href="#">
+            <img src="/uploads/{{ subasta.foto }}" style="height: 180px; width: 100%; display: block; object-fit: cover;">
+          </a>
+          <div class="caption">
+            <h3 id="thumbnail-label"><a href="#">{{ subasta.titulo }}</a></h3>
+            <p class="descripcion">
+              {{ subasta.descripcion | length > 60 ? subasta.descripcion | slice(0, 60) ~ '...' : subasta.descripcion }}
+            </p>
+            <p class="subasta-dias">
+              <span class="glyphicon glyphicon-time"></span>
+              <small>Finaliza en {{ subasta.dias }} dias</small>
+            </p>
+            <a href="#" class="btn btn-danger" role="button">Ver subasta</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
   
-    <div class="row">
-      
-      <!-- paneles -->
-      <div class="col-md-2">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">ordenar por</h3>
+  <!-- listado -->
+  <div class="row">
+    <!-- <p class="lead">Más subastas</p> -->
+    <div class="col-md-12">
+      {% for subasta in subastas | slice(3, subastas.length) %}
+        <div class="media subasta-item">
+          <div class="media-left">
+            <a href="#">
+              <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
+            </a>
           </div>
-          <div class="panel-body">
-            <ul class="list-unstyled">
-              <li>orden1</li>
-              <li>orden2</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">categorias</h3>
-          </div>
-          <div class="panel-body">
-            <ul class="list-unstyled">
-              <li>categoria1</li>
-              <li>categoria2</li>
-              <li>categoria3</li>
-            </ul>
+          <div class="media-body">
+          <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
+          <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
+          <p class="subasta-dias">
+            <span class="glyphicon glyphicon-time"></span>
+            <small>Finaliza en {{ subasta.dias }} dias</small>
+          </p>
+          <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
           </div>
         </div>
-      </div>
-
-      <!-- listado -->
-      <div class="col-md-10">
-        <div class="subastas">
-          <p class="lead">Subastas</p>
-          {% if subastas %}
-            {% for subasta in subastas %}
-              <div class="media">
-                <div class="media-left">
-                <a href="#">
-                  <img class="media-object" alt="120x120" src="" style="width: 120px; height: 120px;">
-                </a>
-                </div>
-                <div class="media-body">
-                <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
-                {{ subasta.descripcion }}
-                </div>
-              </div>
-            {% endfor %}
-          {% endif %}
-        </div>
-      </div>
+      {% endfor %}       
     </div>
+  </div> 
 
 {% endblock %}

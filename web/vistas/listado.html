@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <p class="lead">{{ tipo }}</p>
+  
+  {% if subastas %} 
+
+    {% for subasta in subastas %}
+      <div class="media subasta-item">
+        <div class="media-left">
+          <a href="#">
+            <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
+          </a>
+        </div>
+        <div class="media-body">
+        <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
+        <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
+        <p class="subasta-dias">
+            <span class="glyphicon glyphicon-time"></span>
+            <small>Finaliza en {{ subasta.dias }} dias</small>
+          </p>
+          <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
+        </div>
+      </div>
+    {% endfor %}
+    
+  {% else %}
+    <p>No se encontraron resultados.</p>
+  {% endif %}
+
+{% endblock %}

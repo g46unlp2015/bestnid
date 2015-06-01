@@ -4,34 +4,37 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>bestnid</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/dependencias/componentes/bootstrap/dist/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="/css/base.css">
 </head>
 <body>
   <div class="container">
 
-    {% block menu %}
+    {% block header %}
 
     <div class="header clearfix">
       <ul class="nav nav-pills pull-right">
           {% if session %}
-            <li role="presentation"><a href="#">{{ session.username }}</a></li>
-            <li role="presentation"><a href="{{ urlFor('logout') }}">Logout</a></li>
+            <li role="presentation"><a href="#">{{ session.nombre }}</a></li>
+            <li role="presentation"><a href="{{ urlFor('logout') }}">Salir</a></li>
           {% else %}
-            <li role="presentation"><a href="{{ urlFor('login') }}">Login</a></li>
+            <li role="presentation"><a href="{{ urlFor('login') }}">Ingresar</a></li>
+            <li role="presentation"><a href="{{ urlFor('registracion') }}">Registrarse</a></li>
           {% endif %}
           <li role="presentation"><a href="#">Ayuda</a></li>
         </ul>
 
       <div class="pull-left">
-        <a class="navbar-brand" href="{{ urlFor('index') }}">bestnid</a>
+        <a href="{{ urlFor('index') }}">
+          <img alt="bestnid" src="/img/logo.png" width="100">
+        </a>
       </div>
       
       <form class="navbar-form form-inline pull-left" method="POST" action="{{ urlFor('buscar-subastas') }}">
         <div class="form-group">
         <input type="text" id="buscador" class="form-control" name="q" required>
         </div>
-        <button type="submit" class="btn btn-default">Buscar</button>
+        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span> Buscar</button>
       </form>
     </div>
 
@@ -42,19 +45,59 @@
       <div class="alert alert-success" role="alert">{{ flash.mensaje }}</div>
     {% endif %}
 
-    
     {% if flash.error %}
       <!-- errores -->
       <div class="alert alert-danger" role="alert">{{ flash.error }}</div>
     {% endif %}
 
-    {% block contenido %}
+    <div class="row main">
+
+    {% block main %}
+
+      <div class="col-md-9 pull-right">
+        {% block contenido %}
+        {% endblock %}
+      </div>
+
+      {% block paneles %}
+        <!-- paneles -->
+        <div class="col-md-3 col-sm-12 col-xs-12 pull-left">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Ordenar por</h3>
+            </div>
+            <div class="panel-body">
+              <ul class="list-unstyled">
+                <li><a href="{{ urlFor('ordenar-clicks') }}">Subastas mas populares</a></li>
+                <li><a href="{{ urlFor('ordenar-finalizacion') }}">Próximas a finalizar</a></li>
+                <li><a href="{{ urlFor('ordenar-ultimas') }}">Ultimas agregadas</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Categorias</h3>
+            </div>
+            <div class="panel-body">
+              <ul class="list-unstyled">
+                {% for id, categoria in categorias %}
+                  <li><a href="{{ urlFor('categoria', {'id' : id }) }}">{{ categoria }}</a></li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      {% endblock %}
+      
     {% endblock %}
 
-  </div>
+    </div><!--.row.main-->
 
-  <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  </div><!--.container-->
+
+  <script src="/dependencias/componentes/jquery/dist/jquery.min.js"></script>
+  <script src="/dependencias/componentes/bootstrap/dist/js/bootstrap.min.js"></script>
   
 </body>
 </html>

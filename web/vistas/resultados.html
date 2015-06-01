@@ -1,22 +1,17 @@
 {% extends "base.html" %}
 
 {% block contenido %}
-  
-  {% if flash.error %}
-    <!-- errores -->
-    <div class="alert alert-danger" role="alert">{{ flash.error }}</div>
-  {% else %}
 
     <small>Resultados para: <strong>{{ q }}</strong></small>
     <br><br>
 
     <div class="subastas">
       {% for subasta in subastas %}
-      <div class="media">
+      <div class="subasta-item media">
         <div class="media-left">
-        <a href="#">
-          <img class="media-object" alt="120x120" src="" style="width: 120px; height: 120px;">
-        </a>
+            <a href="#">
+              <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
+            </a>
         </div>
         <div class="media-body">
         <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
@@ -25,7 +20,5 @@
       </div>
       {% endfor %}
     </div>
-
-  {% endif %}
 
 {% endblock %}

@@ -5,5 +5,31 @@ body {
 
 .header {
     padding: 20px;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
+}
+
+.subasta-destacada .descripcion {
+	height: 3em;
+}
+
+.subasta-destacada {
+	box-shadow: 2px 2px 0px rgba(160, 160, 160, 0.34);
+}
+
+.subasta-dias {
+	color: grey;
+}
+
+.subasta-item {
+	box-shadow: 2px 2px 0px rgba(160, 160, 160, 0.34);
+	border: 1px solid lightgray;
+	padding: 10px;
+}
+
+.center-block {
+	float: none;
+}
+
+#buscador {
+	width: 300px;
 }
