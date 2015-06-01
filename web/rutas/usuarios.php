@@ -44,12 +44,18 @@ $app->post('/registracion', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("INSERT INTO usuarios (email, password, nombre) 
-							  VALUES (:email, :password, :nombre)");
+		$query = $app->db->prepare("INSERT INTO usuarios (email, password, nombre, dni, calle, nro, piso, ciudad, pais) 
+							  VALUES (:email, :password, :nombre, :dni, :calle, :nro, :piso, :ciudad, :pais)");
 		$query->execute([
 			':email' => $email,
 			':password' => md5($password),
-			':nombre' => $nombre
+			':nombre' => $nombre,
+			':dni' => $dni,
+			':calle' => $calle,
+			':nro' => $nro, 
+			':piso' => $piso, 
+			':ciudad' => $ciudad,
+			':pais' => $pais
 		]);
 
 	} catch (PDOException $e) {
