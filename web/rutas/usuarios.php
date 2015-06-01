@@ -44,8 +44,8 @@ $app->post('/registracion', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("INSERT INTO usuarios (email, password, nombre, dni, calle, nro, piso, ciudad, pais) 
-							  VALUES (:email, :password, :nombre, :dni, :calle, :nro, :piso, :ciudad, :pais)");
+		$query = $app->db->prepare("INSERT INTO usuarios (email, password, nombre, dni, calle, nro, dpto, ciudad, pais) 
+							  VALUES (:email, :password, :nombre, :dni, :calle, :nro, :dpto, :ciudad, :pais)");
 		$query->execute([
 			':email' => $email,
 			':password' => md5($password),
@@ -53,7 +53,7 @@ $app->post('/registracion', function() use ($app) {
 			':dni' => $dni,
 			':calle' => $calle,
 			':nro' => $nro, 
-			':piso' => $piso, 
+			':dpto' => $dpto, 
 			':ciudad' => $ciudad,
 			':pais' => $pais
 		]);
