@@ -2,16 +2,16 @@
 
 {% block main %}
 
-	<ul class="list-unstyled">
+  <ul class="list-unstyled">
 
     {% if usuarios %}
 
-  		{% for usuario in usuarios %}
-  			<li>{{ usuario.nombre }} ({{ usuario.email }}) - <a class="text-danger" href="{{ urlFor('admin-borrar-usuario', { 'id': usuario.id }) }}">borrar</a></li>
-  		{% endfor %}
+      {% for usuario in usuarios %}
+        <li>{{ usuario.nombre }} ({{ usuario.email }}) - <a class="text-danger" href="{{ urlFor('admin-borrar-usuario', { 'id': usuario.id }) }}">borrar</a></li>
+      {% endfor %}
 
     {% endif %}
 
-	</ul>
+  </ul>
 
 {% endblock %}
