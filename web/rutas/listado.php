@@ -11,9 +11,12 @@ $app->get('/categoria/:id', function ($id) use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias 
-									FROM subastas WHERE finalizacion >= NOW() AND id_categoria = :id
-									ORDER BY clicks DESC, dias ASC");
+		$query = $app->db->prepare(
+			"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias 
+			FROM subastas WHERE finalizacion >= NOW() AND id_categoria = :id
+			ORDER BY clicks DESC, dias ASC"
+		);
+		
 		$ok = $query->execute([
 			':id' => $id
 		]);
@@ -37,9 +40,12 @@ $app->get('/finalizacion', function () use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
-									FROM subastas WHERE finalizacion >= NOW()
-									ORDER BY dias ASC");
+		$query = $app->db->prepare(
+			"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
+			FROM subastas WHERE finalizacion >= NOW()
+			ORDER BY dias ASC"
+		);
+
 		$ok = $query->execute();
 
 		$data = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -60,9 +66,12 @@ $app->get('/popularidad', function () use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
-									FROM subastas WHERE finalizacion >= NOW()
-									ORDER BY clicks DESC");
+		$query = $app->db->prepare(
+			"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
+			FROM subastas WHERE finalizacion >= NOW()
+			ORDER BY clicks DESC"
+		);
+
 		$ok = $query->execute();
 
 		$subastas = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -83,9 +92,12 @@ $app->get('/ultimas', function () use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
-									FROM subastas WHERE finalizacion >= NOW()
-									ORDER BY alta DESC");
+		$query = $app->db->prepare(
+			"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
+			FROM subastas WHERE finalizacion >= NOW()
+			ORDER BY alta DESC"
+		);
+
 		$ok = $query->execute();
 
 		$data = $query->fetchAll(PDO::FETCH_ASSOC);

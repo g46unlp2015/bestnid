@@ -33,7 +33,8 @@ $app->get('/buscar', function () use ($app) {
 			WHERE titulo LIKE CONCAT('%', :q, '%')
 			AND finalizacion >= :desde AND finalizacion >= NOW()
 			AND finalizacion <= :hasta
-			{$sql_categoria} {$sql_order}");
+			{$sql_categoria} {$sql_order}"
+		);
 
 		$query->execute([
 			':q' => $q,

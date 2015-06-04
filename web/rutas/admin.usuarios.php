@@ -12,7 +12,10 @@ $app->group('/admin', function () use ($app) {
 			
 			try {
 
-				$query = $app->db->prepare("SELECT id, email, nombre FROM usuarios");
+				$query = $app->db->prepare(
+					"SELECT id, email, nombre FROM usuarios"
+				);
+				
 				$query->execute();
 				$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
@@ -45,7 +48,9 @@ $app->group('/admin', function () use ($app) {
 
 			try {
 
-				$query = $app->db->prepare("DELETE FROM usuarios WHERE id = :id LIMIT 1");
+				$query = $app->db->prepare(
+					"DELETE FROM usuarios WHERE id = :id LIMIT 1"
+				);
 				
 				$return = $query->execute([
 					':id' => $id 

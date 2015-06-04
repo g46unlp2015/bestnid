@@ -17,7 +17,10 @@ $app->post('/registracion', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT id FROM usuarios WHERE email = :email LIMIT 1");
+		$query = $app->db->prepare(
+			"SELECT id FROM usuarios WHERE email = :email LIMIT 1"
+		);
+
 		$query->execute([
 			':email' => $email
 		]);
@@ -44,8 +47,11 @@ $app->post('/registracion', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("INSERT INTO usuarios (email, password, nombre, dni, calle, nro, dpto, ciudad, pais) 
-							  VALUES (:email, :password, :nombre, :dni, :calle, :nro, :dpto, :ciudad, :pais)");
+		$query = $app->db->prepare(
+			"INSERT INTO usuarios (email, password, nombre, dni, calle, nro, dpto, ciudad, pais) 
+			VALUES (:email, :password, :nombre, :dni, :calle, :nro, :dpto, :ciudad, :pais)"
+		);
+
 		$query->execute([
 			':email' => $email,
 			':password' => md5($password),
@@ -84,9 +90,11 @@ $app->post('/login', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT id, email, password, nombre FROM usuarios
-							  WHERE email = :email AND password = :password
-							  LIMIT 1");
+		$query = $app->db->prepare(
+			"SELECT id, email, password, nombre FROM usuarios
+			WHERE email = :email AND password = :password
+			LIMIT 1"
+		);
 
 		$query->execute([
 			':email' => $email,

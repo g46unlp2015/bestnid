@@ -4,9 +4,12 @@ $app->get('/', function () use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias 
-									FROM subastas WHERE finalizacion >= NOW()
-									ORDER BY clicks DESC, dias ASC");
+		$query = $app->db->prepare(
+			"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias 
+			FROM subastas WHERE finalizacion >= NOW()
+			ORDER BY clicks DESC, dias ASC"
+		);
+		
 		$query->execute();
 		$subastas = $query->fetchAll(PDO::FETCH_ASSOC);
 
