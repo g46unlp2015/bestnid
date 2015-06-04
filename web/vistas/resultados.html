@@ -2,8 +2,38 @@
 
 {% block contenido %}
 
-    <small>Resultados para: <strong>{{ q }}</strong></small>
-    <br><br>
+    <p>Resultados para: <strong>{{ q }}</strong></p>
+    <form class="form-inline">
+      <input type="hidden" name="q" value="{{ q }}">
+      <input type="hidden" name="cat_id" value="{{ filtros.cat_id }}">
+      <div class="form-group">
+        <label for="desde">Desde: </label>
+        <input type="date" class="form-control" name="desde" id="desde" value="{{ filtros.desde }}">
+      </div>
+      <div class="form-group">
+        <label for="hasta">Hasta: </label>
+        <input type="date" class="form-control" name="hasta" id="hasta" value="{{ filtros.hasta }}">
+      </div>
+      <div class="form-group">
+        <label for="order">Ordenar por: </label>
+        <select class="form-control" id="order" name="order">
+        {% for filtro in filtros.order %}
+          {% if filtro == filtros.order_selected %}
+            <option value="{{ filtro }}" selected>{{ filtro | capitalize }}</option>
+          {% else %}
+            <option value="{{ filtro }}">{{ filtro | capitalize }}</option>
+          {% endif %}
+        {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-default">Filtrar</button>
+    </form>
+    <br>
+    <!-- <div class="checkbox">
+        <label>
+          <input type="checkbox"> Buscar en descripción
+        </label>
+      </div> -->
 
     <div class="subastas">
       {% for subasta in subastas %}
@@ -15,7 +45,11 @@
         </div>
         <div class="media-body">
         <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
-        {{ subasta.descripcion }}
+        <p>{{ subasta.descripcion }}</p>
+        <p class="subasta-dias">
+          <span class="glyphicon glyphicon-time"></span>
+          <small>Finaliza el {{ subasta.finalizacion | date("d-m-Y") }}</small>
+        </p>
         </div>
       </div>
       {% endfor %}

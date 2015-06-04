@@ -62,7 +62,7 @@ $app->hook('slim.before.dispatch', function() use ($app) {
 	if ( isset($_SESSION['usuario']) ) {
 		$app->view()->setData('session', $_SESSION['usuario']);
 	}
-
+	
 	$app->view()->setData('categorias', $app->categorias);
 
 });

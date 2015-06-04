@@ -32,75 +32,71 @@ $app->get('/categoria/:id', function ($id) use ($app) {
 })->name('categoria');
 
 
-$app->group('/ordenar', function () use ($app) {
+// por finalizacion
+$app->get('/finalizacion', function () use ($app) {
 
-	// por finalizacion
-	$app->get('/finalizacion', function () use ($app) {
+	try {
 
-		try {
+		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
+									FROM subastas WHERE finalizacion >= NOW()
+									ORDER BY dias ASC");
+		$ok = $query->execute();
 
-			$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
-										FROM subastas WHERE finalizacion >= NOW()
-										ORDER BY dias ASC");
-			$ok = $query->execute();
+		$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
-			$data = $query->fetchAll(PDO::FETCH_ASSOC);
+	} catch (PDOException $e) {
+		$app->flash('error', 'Hubo un error en la base de datos');
+	}
 
-		} catch (PDOException $e) {
-			$app->flash('error', 'Hubo un error en la base de datos');
-		}
+	$app->render('listado.html', [
+		'tipo' => 'Próximas a finalizar',
+		'subastas' => $data
+	]);
 
-		$app->render('listado.html', [
-			'tipo' => 'Próximas a finalizar',
-			'subastas' => $data
-		]);
+})->name('ordenar-finalizacion');
 
-	})->name('ordenar-finalizacion');
+// por popularidad
+$app->get('/popularidad', function () use ($app) {
 
-	// por popularidad
-	$app->get('/clicks', function () use ($app) {
+	try {
 
-		try {
+		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
+									FROM subastas WHERE finalizacion >= NOW()
+									ORDER BY clicks DESC");
+		$ok = $query->execute();
 
-			$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
-										FROM subastas WHERE finalizacion >= NOW()
-										ORDER BY clicks DESC");
-			$ok = $query->execute();
+		$subastas = $query->fetchAll(PDO::FETCH_ASSOC);
 
-			$subastas = $query->fetchAll(PDO::FETCH_ASSOC);
+	} catch (PDOException $e) {
+		$app->flash('error', 'Hubo un error en la base de datos');
+	}
 
-		} catch (PDOException $e) {
-			$app->flash('error', 'Hubo un error en la base de datos');
-		}
+	$app->render('listado.html', [
+		'tipo' => 'Subastas mas populares',
+		'subastas' => $subastas
+	]);
 
-		$app->render('listado.html', [
-			'tipo' => 'Subastas mas populares',
-			'subastas' => $subastas
-		]);
+})->name('ordenar-popularidad');
 
-	})->name('ordenar-clicks');
+// por ultimas subastas agregadas
+$app->get('/ultimas', function () use ($app) {
 
-	// por ultimas subastas agregadas
-	$app->get('/ultimas', function () use ($app) {
+	try {
 
-		try {
+		$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
+									FROM subastas WHERE finalizacion >= NOW()
+									ORDER BY alta DESC");
+		$ok = $query->execute();
 
-			$query = $app->db->prepare("SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
-										FROM subastas WHERE finalizacion >= NOW()
-										ORDER BY alta DESC");
-			$ok = $query->execute();
+		$data = $query->fetchAll(PDO::FETCH_ASSOC);
 
-			$data = $query->fetchAll(PDO::FETCH_ASSOC);
+	} catch (PDOException $e) {
+		$app->flash('error', 'Hubo un error en la base de datos');
+	}
 
-		} catch (PDOException $e) {
-			$app->flash('error', 'Hubo un error en la base de datos');
-		}
+	$app->render('listado.html', [
+		'tipo' => 'Ultimas subastas',
+		'subastas' => $data
+	]);
 
-		$app->render('listado.html', [
-			'tipo' => 'Ultimas subastas',
-			'subastas' => $data
-		]);
-
-	})->name('ordenar-ultimas');
-
-});
+})->name('ordenar-ultimas');
