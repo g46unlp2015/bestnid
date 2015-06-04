@@ -45,13 +45,11 @@
           <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
           <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
           <p class="subasta-meta">
-            <small>
-              <em>{{ subasta.clicks }} clicks</em><br>
-              <span class="glyphicon glyphicon-time"></span>
-              Finaliza en {{ subasta.dias }} dias
-            </small>
+            <i>{{ subasta.clicks }} clicks</i><br>
+            <span class="glyphicon glyphicon-time"></span>
+            <small>Finaliza en {{ subasta.dias }} dias</small>
+            <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
           </p>
-          <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
           </div>
         </div>
       {% endfor %}       
