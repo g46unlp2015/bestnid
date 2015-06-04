@@ -48,8 +48,8 @@ $app->post('/registracion', function() use ($app) {
 	try {
 
 		$query = $app->db->prepare(
-			"INSERT INTO usuarios (email, password, nombre, dni, calle, nro, dpto, ciudad, pais) 
-			VALUES (:email, :password, :nombre, :dni, :calle, :nro, :dpto, :ciudad, :pais)"
+			"INSERT INTO usuarios (email, password, nombre, dni, calle, piso, dpto, ciudad, pais) 
+			VALUES (:email, :password, :nombre, :dni, :calle, :piso, :dpto, :ciudad, :pais)"
 		);
 
 		$query->execute([
@@ -58,7 +58,7 @@ $app->post('/registracion', function() use ($app) {
 			':nombre' => $nombre,
 			':dni' => $dni,
 			':calle' => $calle,
-			':nro' => $nro, 
+			':piso' => $piso, 
 			':dpto' => $dpto, 
 			':ciudad' => $ciudad,
 			':pais' => $pais
@@ -116,7 +116,7 @@ $app->post('/login', function() use ($app) {
 	} else {
 		$_SESSION['usuario']['id'] = $user['id'];
 		$_SESSION['usuario']['nombre'] = $user['nombre'];
-		$app->flash('mensaje', 'Bienvenido, ' . $user['nombre'] . '! has iniciado sesión.');
+		$app->flash('mensaje', 'Bienvenido ' . $user['nombre'] . ', has iniciado sesión.');
 	}	
 
 	$app->redirect('/');

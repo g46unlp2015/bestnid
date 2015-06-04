@@ -16,9 +16,12 @@
             <p class="descripcion">
               {{ subasta.descripcion | length > 60 ? subasta.descripcion | slice(0, 60) ~ '...' : subasta.descripcion }}
             </p>
-            <p class="subasta-dias">
-              <span class="glyphicon glyphicon-time"></span>
-              <small>Finaliza en {{ subasta.dias }} dias</small>
+            <p class="subasta-meta">
+              <small>
+                <em>{{ subasta.clicks }} clicks</em><br>
+                <span class="glyphicon glyphicon-time"></span>
+                Finaliza en {{ subasta.dias }} dias
+              </small>
             </p>
             <a href="#" class="btn btn-danger" role="button">Ver subasta</a>
           </div>
@@ -41,9 +44,12 @@
           <div class="media-body">
           <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
           <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
-          <p class="subasta-dias">
-            <span class="glyphicon glyphicon-time"></span>
-            <small>Finaliza en {{ subasta.dias }} dias</small>
+          <p class="subasta-meta">
+            <small>
+              <em>{{ subasta.clicks }} clicks</em><br>
+              <span class="glyphicon glyphicon-time"></span>
+              Finaliza en {{ subasta.dias }} dias
+            </small>
           </p>
           <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
           </div>

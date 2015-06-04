@@ -16,8 +16,8 @@ body {
 	box-shadow: 2px 2px 0px rgba(160, 160, 160, 0.34);
 }
 
-.subasta-dias {
-	color: grey;
+.subasta-meta {
+	color: gray;
 }
 
 .subasta-item {

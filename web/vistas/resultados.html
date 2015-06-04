@@ -46,9 +46,12 @@
         <div class="media-body">
         <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
         <p>{{ subasta.descripcion }}</p>
-        <p class="subasta-dias">
-          <span class="glyphicon glyphicon-time"></span>
-          <small>Finaliza el {{ subasta.finalizacion | date("d-m-Y") }}</small>
+        <p class="subasta-meta">
+          <small>
+            <em>{{ subasta.clicks }} clicks</em><br>
+            <span class="glyphicon glyphicon-time"></span>
+            Finaliza el {{ subasta.finalizacion | date("d-m-Y") }}            
+          </small>
         </p>
         </div>
       </div>
