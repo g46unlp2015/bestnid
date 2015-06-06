@@ -61,9 +61,9 @@ $app->group('/admin', function () use ($app) {
 			}
 			
 			if ( $return == 0 ) {
-				$app->flash('mensaje', 'se ha borrado el usuario!');
-			} else {
 				$app->flash('error', 'no se ha encontrado ese usuario');
+			} else {
+				$app->flash('mensaje', 'se ha borrado el usuario!');
 			}
 
 			$app->redirect('/admin/usuarios');

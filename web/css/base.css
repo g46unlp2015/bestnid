@@ -3,9 +3,9 @@ body {
 	padding-bottom: 20px;
 }
 
-.header {
-    padding: 20px;
-    margin-bottom: 10px;
+.menu {
+    margin-bottom: 20px !important;
+    margin-top: 20px !important;
 }
 
 .subasta-destacada .descripcion {
@@ -30,6 +30,8 @@ body {
 	float: none;
 }
 
-#buscador {
-	width: 300px;
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
 }

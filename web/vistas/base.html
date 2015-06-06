@@ -12,10 +12,35 @@
 
     {% block header %}
 
-    <div class="header clearfix">
+    <div class="row menu">
 
-      <!-- menu -->
-      <ul class="nav nav-pills pull-right">
+      <div class="col-md-3 pull-left">
+        <a href="{{ urlFor('index') }}">
+          <img class="center-block" alt="bestnid" src="/img/logo.png">
+        </a>
+      </div>
+      
+      <div class="col-md-9 vcenter" style="height: 0em">
+        <!-- buscador -->
+        <form class="navbar-form form-inline pull-left" method="GET" action="{{ urlFor('buscar-subastas') }}">
+          <div class="form-group">
+            <input type="text" class="form-control" id="buscador" name="q" style="width: 230px">
+            <select class="form-control" id="cat_id" name="cat_id" style="width: 215px;">
+              <option value="0">Todas las categorías</option>
+              {% for id, categoria in categorias %}
+                {% if id == filtros.cat_id %}
+                  <option value="{{ id }}" selected>{{ categoria }}</option>
+                {% else %}
+                  <option value="{{ id }}">{{ categoria }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span> Buscar</button>
+        </form>
+
+        <!-- menu -->
+        <ul class="nav nav-pills pull-right">
           {% if session %}
             <li role="presentation"><a href="#">{{ session.nombre }}</a></li>
             <li role="presentation"><a href="{{ urlFor('logout') }}">Salir</a></li>
@@ -26,29 +51,7 @@
           <li role="presentation"><a href="#">Ayuda</a></li>
         </ul>
 
-      <div class="pull-left">
-        <a href="{{ urlFor('index') }}">
-          <img alt="bestnid" src="/img/logo.png" width="100">
-        </a>
       </div>
-      
-      <!-- buscador -->
-      <form class="navbar-form form-inline pull-left" method="GET" action="{{ urlFor('buscar-subastas') }}">
-        <div class="form-group">
-          <input type="text" class="form-control" id="buscador" name="q">
-          <select class="form-control" id="cat_id" name="cat_id">
-            <option value="0">Todas las categorías</option>
-            {% for id, categoria in categorias %}
-              {% if id == filtros.cat_id %}
-                <option value="{{ id }}" selected>{{ categoria }}</option>
-              {% else %}
-                <option value="{{ id }}">{{ categoria }}</option>
-              {% endif %}
-            {% endfor %}
-          </select>
-        </div>
-        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span> Buscar</button>
-      </form>
 
     </div>
 

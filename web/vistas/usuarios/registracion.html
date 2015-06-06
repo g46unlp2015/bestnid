@@ -2,6 +2,7 @@
 
 {% block main %}
 
+<div class="jumbotron" style="background-color: inherit">
   <!-- formulario -->
   <div class="col-md-8 center-block">
     <div class="panel panel-default">
@@ -121,14 +122,15 @@
           <div class="form-group">
             <div class="col-sm-8 col-sm-offset-4">
               <button type="submit" class="btn btn-primary">Registrarse</button>
+              <a href="{{ urlFor('index') }}" class="btn btn-danger">Cancelar</a>
             </div>
           </div>
-
         </form>
         
       </div>
     </div>
   </div>
-  
+
+</div>  
 
 {% endblock %}

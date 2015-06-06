@@ -2,6 +2,7 @@
 
 {% block main %}
 
+<div class="jumbotron" style="background-color: inherit">
   <!-- formulario login -->
   <div class="col-md-5 center-block">
     <div class="panel panel-default">
@@ -9,7 +10,6 @@
       <div class="panel-body">
 
         <form action="{{ urlFor('login-post') }}" method="POST" class="form-horizontal" role="form">
-
           <div class="form-group">
             <label for="email" class="col-sm-3 control-label">Email: </label>
             <div class="col-sm-9">
@@ -27,13 +27,15 @@
           <div class="form-group">
             <div class="col-sm-9 col-sm-offset-3">
               <button type="submit" class="btn btn-primary">Ingresar</button>
+              <a href="{{ urlFor('index') }}" class="btn btn-danger">Cancelar</a>
             </div>
           </div>
-          
         </form>
 
       </div>
     </div>
   </div>
+
+</div>
   
 {% endblock %}
