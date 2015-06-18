@@ -111,11 +111,12 @@ $app->post('/login', function() use ($app) {
 
 	catch (PDOException $e) {
 		$app->flash('error', 'Hubo un error en la base de datos');
-		$app->redirect('/');
+		$app->redirect('/login');
 	}
 
 	if ( empty($usuario) ) {
 		$app->flash('error', 'Email o contraseña incorrecta');
+		$app->redirect('/login');
 	} else {
 		$_SESSION['usuario']['id'] = $usuario['id'];
 		$_SESSION['usuario']['nombre'] = $usuario['nombre'];
