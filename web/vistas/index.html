@@ -8,11 +8,11 @@
     {% for subasta in subastas | slice(0,3) %}
       <div class="col-sm-6 col-md-4">
         <div class="thumbnail subasta-destacada">
-          <a href="#">
+          <a href="{{ urlFor('subasta', {id: subasta.id}) }}">
             <img src="/uploads/{{ subasta.foto }}" style="height: 180px; width: 100%; display: block; object-fit: cover;">
           </a>
           <div class="caption">
-            <h3 id="thumbnail-label"><a href="#">{{ subasta.titulo }}</a></h3>
+            <h3 id="thumbnail-label"><a href="{{ urlFor('subasta', {id: subasta.id}) }}">{{ subasta.titulo }}</a></h3>
             <p class="descripcion">
               {{ subasta.descripcion | length > 60 ? subasta.descripcion | slice(0, 60) ~ '...' : subasta.descripcion }}
             </p>
@@ -23,7 +23,7 @@
                 Finaliza en {{ subasta.dias }} dias
               </small>
             </p>
-            <a href="#" class="btn btn-danger" role="button">Ver subasta</a>
+            <a href="{{ urlFor('subasta', {id: subasta.id}) }}" class="btn btn-danger" role="button">Ver subasta</a>
           </div>
         </div>
       </div>
@@ -37,18 +37,20 @@
       {% for subasta in subastas | slice(3, subastas.length) %}
         <div class="media subasta-item">
           <div class="media-left">
-            <a href="#">
+            <a href="{{ urlFor('subasta', {id: subasta.id}) }}">
               <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
             </a>
           </div>
           <div class="media-body">
-          <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
+          <h4 class="media-heading"><a href="{{ urlFor('subasta', {id: subasta.id}) }}">{{ subasta.titulo }}</a></h4>
           <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
           <p class="subasta-meta">
-            <i>{{ subasta.clicks }} clicks</i><br>
-            <span class="glyphicon glyphicon-time"></span>
-            <small>Finaliza en {{ subasta.dias }} dias</small>
-            <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
+            <small>
+              <em>{{ subasta.clicks }} clicks</em><br>
+              <span class="glyphicon glyphicon-time"></span>
+              Finaliza en {{ subasta.dias }} dias
+            </small>
+            <a href="{{ urlFor('subasta', {id: subasta.id}) }}" class="btn btn-default pull-right" role="button">Ver subasta</a>
           </p>
           </div>
         </div>

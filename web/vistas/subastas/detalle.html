@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+  <nav class="pull-right">
+    <ul class="pager">
+      <li class="previous"><a href="javascript:window.history.back()">&larr; Volver</a></li>
+    </ul>
+  </nav>
+
+  <div class="subasta-detalle">
+    <h2 class="titulo">{{ subasta.titulo }}</h2>
+    
+    <p class="subasta-meta">
+      <small>
+        <span class="glyphicon glyphicon-time"></span>
+        Finaliza el {{ subasta.finalizacion | date("d-m-Y") }} -- <em>{{ subasta.clicks }} clicks</em>           
+      </small>
+    </p>
+
+    <div class="fotos">
+      {% for foto in fotos %}
+        <a class="fancybox" rel="img-detalle" href="/uploads/{{ foto.ruta }}"><img src="/uploads/{{ foto.ruta }}"></a>
+      {% endfor %}
+    </div>
+    
+    <p class="descripcion">{{ subasta.descripcion }}</p>
+
+  </div>
+
+{% endblock %}

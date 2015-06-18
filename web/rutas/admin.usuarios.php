@@ -1,6 +1,6 @@
 <?php
 
-$app->group('/admin', function () use ($app) {
+$app->group('/admin', $auth('admin'), function () use ($app) {
 
 	$app->group('/usuarios', function () use ($app) {
 
@@ -44,7 +44,6 @@ $app->group('/admin', function () use ($app) {
 		// ------------------------------------------------------------------------
 
 		$app->get('/borrar/:id', function ($id) use ($app) {
-			$id = (int)$id;
 
 			try {
 
@@ -52,15 +51,15 @@ $app->group('/admin', function () use ($app) {
 					"DELETE FROM usuarios WHERE id = :id LIMIT 1"
 				);
 				
-				$return = $query->execute([
-					':id' => $id 
+				$res = $query->execute([
+					':id' => (int)$id 
 				]);
 
 			} catch (PDOException $e) {
 				$app->flash('error', 'Hubo un error en la base de datos');
 			}
 			
-			if ( $return == 0 ) {
+			if ( $res == 0 ) {
 				$app->flash('error', 'no se ha encontrado ese usuario');
 			} else {
 				$app->flash('mensaje', 'se ha borrado el usuario!');
@@ -68,7 +67,7 @@ $app->group('/admin', function () use ($app) {
 
 			$app->redirect('/admin/usuarios');
 
-		})->name('admin-borrar-usuario');
+		})->conditions(['id' => '\d+'])->name('admin-borrar-usuario');
 
 	});
 

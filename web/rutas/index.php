@@ -2,11 +2,16 @@
 
 $app->get('/', function () use ($app) {
 
+	$subastas = array();
+
 	try {
 
 		$query = $app->db->prepare(
-			"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias 
-			FROM subastas WHERE finalizacion >= NOW()
+			"SELECT subastas.*, DATEDIFF(subastas.finalizacion,NOW()) AS dias, fotos.ruta AS foto 
+			FROM subastas 
+			LEFT JOIN fotos ON subastas.id = fotos.id_subasta
+			WHERE finalizacion >= NOW()
+			GROUP BY subastas.id
 			ORDER BY clicks DESC, dias ASC"
 		);
 		
@@ -15,8 +20,9 @@ $app->get('/', function () use ($app) {
 
 	} catch (PDOException $e) {
 		$app->flash('error', 'Hubo un error en la base de datos');
+		$app->redirect('/');
 	}
-
+	
 	$app->render('index.html', [
 		'subastas' => $subastas
 	]);

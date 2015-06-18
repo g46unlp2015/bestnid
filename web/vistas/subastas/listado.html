@@ -9,12 +9,12 @@
     {% for subasta in subastas %}
       <div class="media subasta-item">
         <div class="media-left">
-          <a href="#">
+          <a href="{{ urlFor('subasta', {id: subasta.id}) }}">
             <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
           </a>
         </div>
         <div class="media-body">
-        <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
+        <h4 class="media-heading"><a href="{{ urlFor('subasta', {id: subasta.id}) }}">{{ subasta.titulo }}</a></h4>
         <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
         <p class="subasta-meta">
           <small>
@@ -22,7 +22,7 @@
             <span class="glyphicon glyphicon-time"></span>
             Finaliza en {{ subasta.dias }} dias
           </small>
-          <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
+          <a href="{{ urlFor('subasta', {id: subasta.id}) }}" class="btn btn-default pull-right" role="button">Ver subasta</a>
         </p>
         </div>
       </div>
