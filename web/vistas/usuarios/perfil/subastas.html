@@ -1,0 +1,35 @@
+{% extends "usuarios/perfil/base.html" %}
+
+{% block contenido %}
+
+  <p class="lead">Mis subastas</p>
+  
+  {% for subasta in subastas %}
+    <div class="media subasta-item">
+      <div class="media-left">
+        <a href="{{ urlFor('subasta', {id: subasta.id}) }}">
+          <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
+        </a>
+      </div>
+      <div class="media-body">
+        <h4 class="media-heading">
+          <a href="{{ urlFor('subasta', {id: subasta.id}) }}">{{ subasta.titulo }}</a>
+          <div class="btn-group btn-group-xs pull-right" role="group">
+            <a href="{{ urlFor('modificar-subasta', {id: subasta.id}) }}" class="btn btn-default">Modificar</a>
+            <a href="{{ urlFor('borrar-subasta', {id: subasta.id}) }}" class="btn btn-danger"
+              onclick="return confirm('Deseas borrar esta subasta?');">Borrar</a>
+          </div>
+        </h4>
+        <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
+        <p class="subasta-meta">
+          <small>
+            <em>{{ subasta.clicks }} clicks</em><br>
+            <span class="glyphicon glyphicon-time"></span>
+            Finaliza en {{ subasta.dias }} dias
+          </small>
+        </p>
+      </div>
+    </div>
+  {% endfor %}
+
+{% endblock %}

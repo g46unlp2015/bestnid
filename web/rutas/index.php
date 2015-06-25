@@ -7,11 +7,11 @@ $app->get('/', function () use ($app) {
 	try {
 
 		$query = $app->db->prepare(
-			"SELECT subastas.*, DATEDIFF(subastas.finalizacion,NOW()) AS dias, fotos.ruta AS foto 
+			"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto 
 			FROM subastas 
-			LEFT JOIN fotos ON subastas.id = fotos.id_subasta
+			INNER JOIN fotos ON subastas.id = fotos.id_subasta
 			WHERE finalizacion >= NOW()
-			GROUP BY subastas.id
+			GROUP BY id
 			ORDER BY clicks DESC, dias ASC"
 		);
 		

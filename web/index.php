@@ -36,8 +36,10 @@ $view->parserExtensions = array(
 );
 
 // ------------------------------------------------------------------------
-// informacion global para las vistas
+// informacion global
 // ------------------------------------------------------------------------
+
+$app->container->set('config', $config);
 
 $app->container->set('categorias', function () use ($app) {
 	

@@ -21,7 +21,7 @@
         </a>
       </div>
 
-      <!-- parchaso de style -->
+      <!-- padding-top (parche) -->
       <div class="col-md-9" style="padding-top: 18px;">
       
         <!-- buscador -->
@@ -45,19 +45,23 @@
         <!-- menu -->
         <ul class="nav nav-pills pull-right">
           {% if usuario %}
-            <li role="presentation"><a href="{{ urlFor('perfil') }}">{{ usuario.nombre }}</a></li>
+            <li role="presentation">
+              <a href="{{ usuario.rol == 'admin' ? urlFor('admin') : urlFor('perfil') }}">
+                <span class="glyphicon glyphicon-user"></span> {{ usuario.nombre | split(' ') | first }}
+              </a>
+            </li>
             <li role="presentation"><a href="{{ urlFor('logout') }}">Salir</a></li>
           {% else %}
-            <li role="presentation"><a href="{{ urlFor('login') }}">Ingresar</a></li>
-            <li role="presentation"><a href="{{ urlFor('registracion') }}">Registrarse</a></li>
+            <li role="presentation"><a href="{{ urlFor('login') }}">
+              <span class="glyphicon glyphicon-user"></span> Ingresar</a>
+            </li>
+            <li role="presentation"><a href="{{ urlFor('registracion') }}"><span class="glyphicon glyphicon-pencil"></span> Registrarse</a></li>
           {% endif %}
-          <li role="presentation"><a href="#">Ayuda</a></li>
         </ul>
 
       </div>
       
     </div>
-
 
     {% endblock %}
 
@@ -86,20 +90,24 @@
 
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">Listar subastas</h3>
+              <h3 class="panel-title">Subastas</h3>
             </div>
-            <div class="panel-body">
-              <ul class="list-unstyled">
-                <li><a href="{{ urlFor('ordenar-popularidad') }}">Subastas mas populares</a></li>
-                <li><a href="{{ urlFor('ordenar-finalizacion') }}">Próximas a finalizar</a></li>
-                <li><a href="{{ urlFor('ordenar-ultimas') }}">Ultimas agregadas</a></li>
-              </ul>
+            <div class="list-group">
+              <a class="list-group-item" href="{{ urlFor('publicar-subasta') }}"><span class="glyphicon glyphicon-bullhorn"></span> Publicar subasta</a>
+              <a class="list-group-item" href="{{ urlFor('ordenar-popularidad') }}">Mas populares</a>
+              <a class="list-group-item" href="{{ urlFor('ordenar-finalizacion') }}">Próximas a finalizar</a>
+              <a class="list-group-item" href="{{ urlFor('ordenar-ultimas') }}">Ultimas agregadas</a>
             </div>
           </div>
 
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">Categorias</h3>
+              <h3 class="panel-title">
+                Categorias
+                {% if usuario and usuario.rol == 'admin' %}
+                  <span class="pull-right"> | <a href="{{ urlFor('admin-categorias')}}">editar</a></span>
+                {% endif %}
+              </h3>
             </div>
             <div class="panel-body">
               <ul class="list-unstyled">

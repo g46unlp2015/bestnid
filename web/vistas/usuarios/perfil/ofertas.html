@@ -1,0 +1,32 @@
+{% extends "usuarios/perfil/base.html" %}
+
+{% block contenido %}
+
+  <p class="lead">Mis ofertas</p>
+  
+  {% for oferta in ofertas %}
+    <div class="media subasta-item">
+      <div class="media-left">
+        <a href="{{ urlFor('subasta', {id: oferta.id_subasta}) }}">
+          <img src="/uploads/{{ oferta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
+        </a>
+      </div>
+      <div class="media-body">
+        <h4 class="media-heading"><a href="{{ urlFor('subasta', {id: oferta.id_subasta}) }}">{{ oferta.titulo }}</a></h4>
+        <p>
+          <strong>Motivo: </strong>{{ oferta.motivo }}
+          <br>
+          <strong>Monto: </strong>${{ oferta.monto }}
+        </p>
+        <p class="subasta-meta">
+          <small>
+            <span class="glyphicon glyphicon-time"></span>
+            Finaliza en {{ oferta.dias }} dias
+          </small>
+          <a href="{{ urlFor('subasta', {id: oferta.id_subasta}) }}" class="btn btn-default pull-right" role="button">Ver subasta</a>
+        </p>
+      </div>
+    </div>
+  {% endfor %}
+
+{% endblock %}

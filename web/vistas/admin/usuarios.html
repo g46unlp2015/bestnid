@@ -1,17 +1,11 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
 
-{% block main %}
+{% block contenido %}
 
   <ul class="list-unstyled">
-
-    {% if usuarios %}
-
-      {% for usuario in usuarios %}
-        <li>{{ usuario.nombre }} ({{ usuario.email }}) - <a class="text-danger" href="{{ urlFor('admin-borrar-usuario', { 'id': usuario.id }) }}">borrar</a></li>
-      {% endfor %}
-
-    {% endif %}
-
+    {% for usuario in usuarios if usuario.rol != 'admin' %}
+      <li>{{ usuario.nombre }} ({{ usuario.email }}) - <a class="text-danger" href="{{ urlFor('admin-borrar-usuario', { 'id': usuario.id }) }}">borrar</a></li>
+    {% endfor %}
   </ul>
 
 {% endblock %}
