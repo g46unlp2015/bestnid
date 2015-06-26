@@ -30,6 +30,26 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 		$app->get('/borrar/:id', function ($id) use ($app) {
 
 			try {
+				// comprobar ofertas existentes
+				$query = $app->db->prepare(
+					"SELECT ofertas.id FROM ofertas
+					LEFT JOIN subastas ON subastas.id = ofertas.id_subasta
+					WHERE subastas.id_categoria = :id"
+				);
+
+				$query->execute([':id' => $id]);
+
+			} catch (PDOException $e) {
+				$app->flash('error', 'Hubo un error en la base de datos');
+				$app->redirect($app->urlFor('admin-categorias'));
+			}
+
+			if ( $query->rowCount() > 0 ) {
+				$app->flash('error', 'La categoria tiene ofertas y no se puede borrar.');
+				$app->redirect($app->urlFor('admin-categorias'));
+			}
+
+			try {
 
 				$query = $app->db->prepare(
 					"DELETE FROM categorias
@@ -138,7 +158,7 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 				$app->redirect($app->urlFor('admin-usuarios'));
 			}
 
-			$app->render('admin/usuarios.html', [
+			$app->render('admin/usuarios/index.html', [
 				'usuarios' => $data
 			]);
 
