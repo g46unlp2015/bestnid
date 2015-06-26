@@ -10,7 +10,7 @@
       <div class="media subasta-item">
         <div class="media-left">
           <a href="{{ urlFor('subasta', {id: subasta.id}) }}">
-            <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
+            <img src="{{ uploads.dir ~ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
           </a>
         </div>
         <div class="media-body">

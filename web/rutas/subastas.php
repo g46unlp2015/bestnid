@@ -223,53 +223,27 @@ $app->group('/subastas', function () use ($app, $auth) {
 		extract($app->request->params());
 
 		$rutas = array();
-		$errores = array();
 
-		if ( ! empty($_FILES['fotos']['name']) ) {
+		if ( ! empty($_FILES['fotos']['name'][0]) ) {
 
 			$fotos = $_FILES['fotos'];
-			$permitidas = ['jpg', 'png', 'jpeg'];
 
 			foreach ($fotos['name'] as $key => $foto_nombre) {
 
 				$foto_tmp = $fotos['tmp_name'][$key];
-				$foto_size = $fotos['size'][$key];
-				$foto_error = $fotos['error'][$key];
 				$foto_ext = strtolower( end( explode('.', $foto_nombre) ) );
 
-				if (in_array($foto_ext, $permitidas)) {
+				$foto_nuevo_nombre = uniqid('', true) . '.' . $foto_ext;
+				$foto_destino = $app->config['uploads.ruta'] . $foto_nuevo_nombre;
 
-					if ($foto_error === 0) {
-
-						if ($foto_size <= 2097152) {
-
-							$foto_nuevo_nombre = uniqid('', true) . '.' . $foto_ext;
-							$foto_destino = $app->config['uploads.ruta'] . $foto_nuevo_nombre;
-
-							if ( ! move_uploaded_file($foto_tmp, $foto_destino) ) {
-								$errores['fotos'][$key] = "[{$foto_nombre}] fallo al moverse a {$CARPETA_FOTOS}.";
-							} else {
-								array_push($rutas, $foto_nuevo_nombre);
-							}
-
-						} else {
-							$errores['fotos'][$key] = "[{$foto_nombre}] es mayor a 2MB.";
-						}
-
-					} else {
-						$errores['fotos'][$key] = "[{$foto_nombre}] con error {$foto_error}.";
-					}
-
+				if ( ! move_uploaded_file($foto_tmp, $foto_destino) ) {
+					$app->flash('error.fotos', "[{$foto_nombre}] fallo al moverse en el servidor.");
+					$app->flash('anterior', $app->request->params());
+					$app->redirect($app->urlFor('publicar-subasta'));
 				} else {
-					$errores['fotos'][$key] = "[{$foto_nombre}] con extension ({$foto_ext}) no permitida.";
+					array_push($rutas, $foto_nuevo_nombre);
 				}
 			}
-		}
-
-		if ( ! empty($errores) ) {
-			$app->flash('errores', $errores);
-			$app->flash('anterior', $req->params());
-			$app->redirect($app->urlFor('publicar-subasta'));
 		}
 
 		try {
@@ -318,8 +292,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 		}
 
 		$app->flash('mensaje', 'Tu subasta se ha subido correctamente.');
-		$url = $app->urlFor('subasta', ['id' => $id_subasta]);
-		$app->redirect($url);
+		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
 
 	})->name('publicar-subasta-post');
 
@@ -333,19 +306,24 @@ $app->group('/subastas', function () use ($app, $auth) {
 		$fotos = array();
 
 		try {
-
+			// datos
 			$query = $app->db->prepare(
 				"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
 				FROM subastas 
 				WHERE id = :id AND id_usuario = :id_usuario"
 			);
-
 			$query->execute([
 				':id' => $id,
 				':id_usuario' => $_SESSION['usuario']['id']
 			]);
-
 			$subasta = $query->fetch(PDO::FETCH_ASSOC);
+
+			// fotos
+			$query = $app->db->prepare(
+				"SELECT id, ruta FROM fotos WHERE id_subasta = :id"
+			);
+			$query->execute([':id' => $id]);
+			$fotos = $query->fetchAll(PDO::FETCH_ASSOC);
 			
 		} catch (PDOException $e) {
 			$app->flash('error', 'Hubo un error en la base de datos');
@@ -357,8 +335,13 @@ $app->group('/subastas', function () use ($app, $auth) {
 			$app->redirect($app->urlFor('index'));
 		} 
 
+		$alta = new DateTime($subasta['alta']);
+		$now = new DateTime();
+		$subasta['diasMax'] = 30 - (int)$now->diff($alta)->format('%a');
+
 		$app->render('subastas/modificar.html', [
-			'subasta' => $subasta
+			'subasta' => $subasta,
+			'fotos' => $fotos
 		]);
 
 	})->conditions([':id' => '\d+'])->name('modificar-subasta');
@@ -368,9 +351,31 @@ $app->group('/subastas', function () use ($app, $auth) {
 
 		// extrae los parametros en variables del mismo nombre que su "key"
 		extract($app->request->params());
+		$rutas = array();
+
+		if ( ! empty($_FILES['fotos']['name'][0]) ) {
+
+			$fotos = $_FILES['fotos'];
+
+			foreach ($fotos['name'] as $key => $foto_nombre) {
+
+				$foto_tmp = $fotos['tmp_name'][$key];
+				$foto_ext = strtolower( end( explode('.', $foto_nombre) ) );
+
+				$foto_nuevo_nombre = uniqid('', true) . '.' . $foto_ext;
+				$foto_destino = $app->config['uploads.ruta'] . $foto_nuevo_nombre;
+
+				if ( ! move_uploaded_file($foto_tmp, $foto_destino) ) {
+					$app->flash('error.fotos', "[{$foto_nombre}] fallo al moverse en el servidor.");
+					$app->redirect($app->urlFor('modificar-subasta', ['id' => $id]));
+				} else {
+					array_push($rutas, $foto_nuevo_nombre);
+				}
+			}
+		}
 
 		try {
-			// agrego una subasta
+			// actualizar subasta
 			$query = $app->db->prepare(
 				"UPDATE subastas
 				SET titulo = :titulo, descripcion = :descripcion, id_categoria = :id_categoria, finalizacion = :finalizacion
@@ -392,11 +397,79 @@ $app->group('/subastas', function () use ($app, $auth) {
 			$app->redirect($app->urlFor('subasta', ['id' => $id]));
 		}
 
+		try {
+			// agrego las rutas a la tabla de fotos
+			foreach ($rutas as $ruta) {
+
+				$query = $app->db->prepare(
+					"INSERT INTO fotos (id_subasta, ruta) 
+					VALUES (:id_subasta, :ruta)"
+				);
+
+				$query->execute([
+					':id_subasta' => $id,
+					':ruta' => $ruta
+				]);	
+			}
+
+		} catch (PDOException $e) {
+			$app->flash('error', 'Hubo un error en la base de datos, al agregar las fotos.');
+			$app->redirect($app->urlFor('subasta', ['id' => $id]));
+		}
+
 		$app->flash('mensaje', 'Tu subasta se ha modificado correctamente.');
-		$url = $app->urlFor('subasta', ['id' => $id]);
-		$app->redirect($url);
+		$app->redirect($app->urlFor('subasta', ['id' => $id]));
 
 	})->name('modificar-subasta-post');
+
+
+// ------------------------------------------------------------------------
+// AJAX: borrar foto de la subasta
+// ------------------------------------------------------------------------
+
+	$app->post('/fotos/borrar', $auth(), function () use($app) {
+
+		// extrae los parametros en variables del mismo nombre que su "key"
+		extract($app->request->params());
+		$app->response->headers->set('Content-Type', 'application/json');
+
+		try {
+
+			// consulta ruta
+			$query = $app->db->prepare("SELECT ruta FROM fotos WHERE id = :id_foto");
+			$query->execute([':id_foto' => $id_foto]);
+			$foto = $query->fetch(PDO::FETCH_ASSOC);
+
+			// borrado de la base de datos
+			$query = $app->db->prepare(
+				"DELETE FROM fotos WHERE id = :id_foto
+				AND EXISTS(SELECT * FROM subastas 
+					WHERE subastas.id_usuario = :id_usuario 
+					AND subastas.id = :id_subasta)"
+			);
+
+			$query->execute([
+				':id_foto' => $id_foto,
+				':id_subasta' => $id_subasta,
+				':id_usuario' => $_SESSION['usuario']['id']
+			]);
+
+		} catch (PDOException $e) {
+			die( json_encode( ['status' => 403, 'error' => 'Hubo un error en la base de datos.']) );
+		}
+
+		if ( $query->rowCount() == 0 ) {
+			echo json_encode( ['status' => 403, 'error' => 'Esa foto no existe o no tienes permiso de borrarla.'] );
+		} else {
+			// borrado fisico
+			unlink($app->config['uploads.ruta'].$foto['ruta']);
+			echo json_encode( ['status' => 200] );
+		}
+
+	})->conditions([
+		':id' => '\d+',
+		':foto' => '\d+'
+	])->name('borrar-foto');
 
 // ------------------------------------------------------------------------
 // borrar subasta
@@ -404,10 +477,26 @@ $app->group('/subastas', function () use ($app, $auth) {
 
 	$app->get('/borrar/:id', $auth(), function ($id) use ($app) {
 
-		$subasta = array();
+		try {
+			// comprobar ofertas existentes
+			$query = $app->db->prepare(
+				"SELECT id FROM ofertas WHERE id_subasta = :id"
+			);
+
+			$query->execute([':id' => $id]);
+
+		} catch (PDOException $e) {
+			$app->flash('error', 'Hubo un error en la base de datos');
+			$app->redirect($app->urlFor('index'));
+		}
+
+		if ( $query->rowCount() > 0 ) {
+			$app->flash('error', 'La subasta tiene ofertas y no se puede borrar.');
+			$app->redirect($app->urlFor('subasta', ['id' => $id]));
+		}
 
 		try {
-			// datos subasta
+
 			$query = $app->db->prepare(
 				"DELETE FROM subastas WHERE id = :id AND id_usuario = :id_usuario"
 			);
@@ -442,12 +531,6 @@ $app->group('/subastas', function () use ($app, $auth) {
 
 			$query = $app->db->prepare(
 				"DELETE FROM fotos WHERE id_subasta = :id"
-			);
-			$query->execute([':id' => $id]);
-
-			// borrar ofertas
-			$query = $app->db->prepare(
-				"DELETE FROM ofertas WHERE id_subasta = :id"
 			);
 			$query->execute([':id' => $id]);
 
@@ -486,12 +569,12 @@ $app->group('/subastas', function () use ($app, $auth) {
 				':id_usuario' => $_SESSION['usuario']['id']
 			]);
 
+			$app->flash('mensaje', 'Se ha publicado tu oferta!');
+
 		} catch (PDOException $e) {
 			$app->flash('error', 'No se pudo publicar tu oferta');
-			$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
 		}
 
-		$app->flash('mensaje', 'Se ha publicado tu oferta!');
 		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
 
 	})->name('ofertar-post');
@@ -508,23 +591,20 @@ $app->group('/subastas', function () use ($app, $auth) {
 		try {
 
 			$query = $app->db->prepare(
-				"UPDATE ofertas 
-				SET monto = :monto, motivo = :motivo
-				WHERE id = :id"
+				"UPDATE ofertas SET monto = :monto WHERE id = :id"
 			);
 
 			$query->execute([
 				':id' => $id_oferta,
-				':monto' => $monto,
-				':motivo' => $motivo
+				':monto' => $monto
 			]);
+
+			$app->flash('mensaje', 'Se ha actualizado tu oferta');
 
 		} catch (PDOException $e) {
 			$app->flash('error', 'No se pudo actualizar tu oferta');
-			$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
 		}
 
-		$app->flash('mensaje', 'Se ha actualizado tu oferta');
 		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
 
 	})->name('modificar-oferta-post');

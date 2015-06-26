@@ -25,17 +25,15 @@
       <div class="col-md-6">
         <div class="fotos">
           {% for foto in fotos | slice(0,1) %}
-            <a class="fancybox" rel="img-detalle" href="/uploads/{{ foto.ruta }}"><img class="detalle" src="/uploads/{{ foto.ruta }}"></a>
+            <a class="fancybox" rel="img-detalle" href="{{ uploads.dir ~ foto.ruta }}"><img class="detalle" src="{{ uploads.dir ~ foto.ruta }}"></a>
           {% endfor %}
         </div>
       </div>
       <div class="col-md-6">
+        <p><a href="{{ urlFor('categoria', {id: subasta.id_categoria}) }}"><span class="glyphicon glyphicon-tag"></span> {{ categorias[subasta.id_categoria] }}</a></p>
         <p class="descripcion">{{ subasta.descripcion }}</p>
-        {% for foto in fotos | slice(1,4) %}
-          <a class="fancybox" rel="img-detalle" href="/uploads/{{ foto.ruta }}"><img class="detalle-miniatura" src="/uploads/{{ foto.ruta }}"></a>
-        {% endfor %}
-        {% for foto in fotos | slice(4,fotos.length) %}
-          <a class="fancybox" rel="img-detalle" href="/uploads/{{ foto.ruta }}" style="display:none"><img class="detalle-miniatura" src="/uploads/{{ foto.ruta }}"></a>
+        {% for foto in fotos | slice(1, fotos.length) %}
+          <a class="fancybox" rel="img-detalle" href="{{ uploads.dir ~ foto.ruta }}"><img class="detalle-miniatura" src="{{ uploads.dir ~ foto.ruta }}"></a>
         {% endfor %}
       </div>
     </div>
@@ -44,22 +42,24 @@
   {% if usuario and usuario.id != subasta.id_usuario %}
     <div class="subasta-ofertar">
       {% if oferta %}
-        <form action="{{ urlFor('modificar-oferta-post') }}" method="POST" class="form-horizontal" role="form">
+        <div class="col-md-6">
+          <em><strong>"{{ oferta.motivo | trim }}"</strong></em>
+        </div>
+        <!-- demo3: {{ urlFor('modificar-oferta-post') }} -->
+        <form action="#" method="POST" class="form-horizontal" role="form">
           <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
           <input type="hidden" name="id_oferta" value="{{ oferta.id }}">
           <div class="form-group">
-            <div class="col-md-7">
-              <textarea class="form-control" name="motivo" rows="2" required>{{ oferta.motivo | trim }}</textarea>
-            </div>
             <div class="col-md-3">
               <div class="input-group">
                 <span class="input-group-addon">$</span>
                 <input type="number" class="form-control" name="monto" min="0" value="{{ oferta.monto }}" required>
               </div>
             </div>
-            <div class="col-md-2">
-              <button type="submit" class="btn btn-danger">Modificar</button>
-            </div>
+            <div class="col-md-3">
+              <button type="submit" class="btn btn-default">Modificar</button>
+              <a href="#" class="btn btn-danger">Borrar</a>
+            </div>           
           </div>
         </form>
       {% else %}

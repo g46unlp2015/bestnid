@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+
+{% block contenido %}
+
+  <form action="{{ urlFor('admin-editar-categoria-post') }}" method="POST" class="form-horizontal" role="form">
+    <input type="hidden" value="{{ categoria.id }}" name="id">
+    <div class="form-group">
+      <div class="col-md-10">
+        <input type="text" class="form-control" name="nombre" value="{{ categoria.nombre }}" required>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Editar</button>
+      </div>
+    </div>
+  </form>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Editar</th>
+        <th>Borrar</th>
+      </tr> 
+    </thead>
+    <tbody>
+      {% for id, categoria in categorias %}
+        <tr>       
+          <td>{{ categoria }}</td>
+          <td><a href="{{ urlFor('admin-editar-categoria', { 'id': id }) }}">editar</a></td>
+          <td><a class="text-danger" href="{{ urlFor('admin-borrar-categoria', { 'id': id }) }}">borrar</a></td>              
+        </tr> 
+      {% endfor %}    
+    </tbody>
+  </table>
+
+{% endblock %}

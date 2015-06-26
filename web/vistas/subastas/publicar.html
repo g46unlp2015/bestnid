@@ -8,7 +8,7 @@
 
   <div class="col-md-12">
 
-    <form action="{{ urlFor('publicar-subasta-post') }}" method="POST" class="form-horizontal" enctype="multipart/form-data" role="form">
+    <form action="{{ urlFor('publicar-subasta-post') }}" method="POST" id="form-subasta" class="form-horizontal" enctype="multipart/form-data" role="form">
 
       <div class="form-group">
         <label for="titulo" class="control-label">Título (*): </label>
@@ -17,14 +17,15 @@
 
       <div class="form-group">
         <label for="uploads">Fotos (*): </label>
-        {% if flash.errores.fotos %}
-          <ul>
+        <ul id="errores-fotos">
+          {% if flash.errores.fotos %}
             {% for error in flash.errores.fotos %}
             <li class="text-danger">{{error}}</li>
             {% endfor %}
-          </ul>
-        {% endif %}
-        <input type="file" id="uploads" name="fotos[]" accept="image/*" multiple required>
+          {% endif %}
+        </ul>
+        <input type="file" id="uploads" name="fotos[]" data-toggle="tooltip" title="Selecciona varias fotos manteniendo la tecla Shift o Ctrl" accept="image/*" multiple required>
+        <small>(Max. 5 fotos)</small>
         <div id="uploads-preview"></div>
       </div>
 
@@ -36,7 +37,8 @@
       <div class="form-group">
         <label for="id_categoria" class="col-md-2 control-label">Categoria (*): </label>
         <div class="col-md-3">
-          <select class="form-control" id="id_categoria" name="id_categoria">
+          <select class="form-control" id="id_categoria" name="id_categoria" required>
+            <option value="">-- Seleccione una categoria --</option>
             {% for id, categoria in categorias %}
               {% if flash and flash.anterior.id_categoria == id %}
                 <option value="{{ id }}" selected>{{ categoria }}</option>
@@ -52,7 +54,7 @@
         <label for="duracion" class="col-md-2 control-label">Duracion (*): </label>
         <div class="col-md-3">
           <div class="input-group">
-            <input type="number" class="form-control" name="duracion" min="0" max="30" value="{{ flash.anterior.duracion ? flash.anterior.duracion : '' }}">
+            <input type="number" class="form-control" name="duracion" min="15" max="30" value="{{ flash.anterior.duracion ? flash.anterior.duracion : '' }}" required>
             <span class="input-group-addon">días</span>
           </div>
         </div>
@@ -74,38 +76,5 @@
 {% endblock %}
 
 {% block js %}
-
-  <script type="text/javascript">
-
-    $(document).ready(function() {
-
-      $('#uploads').on('change', function (e) {
-
-        var files = e.target.files;
-        preview = document.getElementById("uploads-preview");
-        preview.innerHTML = '';
-
-        for (var i = 0; i < files.length; i++) {
-          var file = files[i];
-          var imageType = /image.*/;
-          
-          if ( ! file.type.match(imageType) ) {
-            continue;
-          }
-          
-          var img = document.createElement("img");
-          img.file = file;
-          preview.appendChild(img);
-          
-          var reader = new FileReader();
-          
-          reader.onload = (function(aImg) { return function(e) { aImg.src = e.target.result; }; })(img);
-          reader.readAsDataURL(file);
-        }
-      });
-
-    });
-
-  </script>
-
+  <script type="text/javascript" src="/js/uploads.js"></script>
 {% endblock %}

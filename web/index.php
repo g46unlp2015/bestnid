@@ -68,6 +68,11 @@ $app->hook('slim.before.dispatch', function() use ($app) {
 	// categorias
 	$app->view()->setData('categorias', $app->categorias);
 
+	// uploads
+	$app->view()->setData('uploads', [
+		'dir' => $app->config['uploads.dir']
+	]);
+
 });
 
 // ------------------------------------------------------------------------

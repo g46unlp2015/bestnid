@@ -53,7 +53,7 @@ body {
 }
 */
 
-#uploads-preview img {
+#uploads-preview img, #uploads-existentes img {
 	height: 150px;
 	margin: 10px;
 }
@@ -95,4 +95,17 @@ img.detalle-miniatura {
 	box-shadow: 2px 2px 0px rgba(160, 160, 160, 0.34);
 	height: 80px;
 	margin: 15px;
+}
+
+.foto-existente {
+	position: relative;
+	float: left;
+}
+
+a.borrar-foto {
+	margin-top: 5px;
+	padding: 5px;
+	position: absolute;
+	right: 0;
+	top: 0;
 }

@@ -8,35 +8,37 @@
 
   <div class="col-md-12">
 
-    <form action="{{ urlFor('modificar-subasta-post') }}" method="POST" class="form-horizontal" enctype="multipart/form-data" role="form">
+    <form action="{{ urlFor('modificar-subasta-post') }}" method="POST" id="form-subasta" class="form-horizontal" enctype="multipart/form-data" role="form">
 
       <input type="hidden" value="{{ subasta.id }}" name="id">
 
       <div class="form-group">
         <label for="titulo" class="control-label">Título (*): </label>
-        <input type="text" class="form-control" name="titulo" maxlength="120" value="{{ subasta.titulo ? subasta.titulo : '' }}" required>
+        <input type="text" class="form-control" name="titulo" maxlength="120" value="{{ subasta.titulo }}" required>
       </div>
 
-      <!--
       <div class="form-group">
         <label for="uploads">Fotos (*): </label>
-        {% if flash.errores.fotos %}
-          <ul>
-            {% for error in flash.errores.fotos %}
+        <ul id="errores-fotos">
+          {% if flash.error.fotos %}
             <li class="text-danger">{{error}}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-        <input type="file" id="uploads" name="fotos[]" accept="image/*" multiple>
-        <div id="uploads-preview">
-         
+          {% endif %}
+        </ul>
+        <input type="file" id="uploads" name="fotos[]" accept="image/*" data-toggle="tooltip" title="Selecciona varias fotos manteniendo la tecla Shift o Ctrl" multiple>
+        <div id="uploads-preview"></div>
+        <div id="uploads-existentes">
+          {% for foto in fotos %}
+            <div class="foto-existente">
+              <img src="{{ uploads.dir ~ foto.ruta }}">
+              <a class="btn btn-danger borrar-foto" data-foto-id="{{ foto.id }}" data-subasta-id="{{ subasta.id }}" data-toggle="tooltip" title="Borrar"><span class="glyphicon glyphicon-remove"></span></a>
+            </div>
+          {% endfor %}
         </div>
       </div>
-      -->
 
       <div class="form-group">
         <label for="descripcion" class="control-label">Descripción (*): </label>
-        <textarea class="form-control" name="descripcion" rows="5" required>{{ subasta.descripcion ? subasta.descripcion | trim : '' }}</textarea>
+        <textarea class="form-control" name="descripcion" rows="5" required>{{ subasta.descripcion | trim }}</textarea>
       </div>
 
       <div class="form-group">
@@ -44,23 +46,19 @@
         <div class="col-md-3">
           <select class="form-control" id="id_categoria" name="id_categoria">
             {% for id, categoria in categorias %}
-              {% if flash and subasta.id_categoria == id %}
-                <option value="{{ id }}" selected>{{ categoria }}</option>
-              {% else %}
-                <option value="{{ id }}">{{ categoria }}</option>
-              {% endif %}
+              <option value="{{ id }}">{{ categoria }}</option>
             {% endfor %}
           </select>
         </div>
 
         <div class="clearfix"></div><br>
-
         <label for="duracion" class="col-md-2 control-label">Duracion (*): </label>
         <div class="col-md-3">
           <div class="input-group">
-            <input type="number" class="form-control" name="duracion" min="0" max="30" value="{{ subasta.dias ? subasta.dias : '' }}">
+            <input type="number" class="form-control" name="duracion" min="1" max="{{ subasta.diasMax }}" value="{{ subasta.dias }}" required>
             <span class="input-group-addon">días</span>
           </div>
+          <em><small>Publicada el dia {{ subasta.alta }}</small></em>
         </div>
       </div>
 
@@ -80,38 +78,5 @@
 {% endblock %}
 
 {% block js %}
-
-  <script type="text/javascript">
-
-    $(document).ready(function() {
-
-      $('#uploads').on('change', function (e) {
-
-        var files = e.target.files;
-        preview = document.getElementById("uploads-preview");
-        preview.innerHTML = '';
-
-        for (var i = 0; i < files.length; i++) {
-          var file = files[i];
-          var imageType = /image.*/;
-          
-          if ( ! file.type.match(imageType) ) {
-            continue;
-          }
-          
-          var img = document.createElement("img");
-          img.file = file;
-          preview.appendChild(img);
-          
-          var reader = new FileReader();
-          
-          reader.onload = (function(aImg) { return function(e) { aImg.src = e.target.result; }; })(img);
-          reader.readAsDataURL(file);
-        }
-      });
-
-    });
-
-  </script>
-
+  <script type="text/javascript" src="/js/uploads.js"></script>
 {% endblock %}
