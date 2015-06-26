@@ -49,7 +49,7 @@ $(document).ready(function() {
         errores.push('<li class="text-danger">'+file.name+' no es una imagen.</li>');
       }
 
-      if ( file.size > 2097152) {
+      else if ( file.size > 2097152) {
         errores.push('<li class="text-danger">La imagen '+file.name+' pesa mas de 2MB.</li>');
       }
     }
