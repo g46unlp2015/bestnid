@@ -45,7 +45,7 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 			}
 
 			if ( $query->rowCount() > 0 ) {
-				$app->flash('error', 'La categoria tiene ofertas y no se puede borrar.');
+				$app->flash('error', 'La categoria tiene subastas y no se puede borrar.');
 				$app->redirect($app->urlFor('admin-categorias'));
 			}
 
@@ -113,11 +113,14 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 			
 			extract($app->request->params());
 
+			if (in_array($nombre, $app->categorias)) {
+				$app->flash('error', 'La categoria ya existe. Elige otro nombre');
+				$app->redirect($app->urlFor('admin-editar-categoria', ['id' => $id]));
+			}
+
 			try {
 
-				$query = $app->db->prepare(
-					"UPDATE categorias SET nombre = :nombre WHERE id = :id"
-				);
+				$query = $app->db->prepare("UPDATE categorias SET nombre = :nombre WHERE id = :id");
 				$query->execute([
 					':nombre' => $nombre,
 					':id' => $id
@@ -151,7 +154,7 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 				);
 				
 				$query->execute();
-				$data = $query->fetchAll(PDO::FETCH_ASSOC);
+				$usuarios = $query->fetchAll(PDO::FETCH_ASSOC);
 
 			} catch (PDOException $e) {
 				$app->flash('error', 'Hubo un error en la base de datos');
@@ -159,7 +162,7 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 			}
 
 			$app->render('admin/usuarios/index.html', [
-				'usuarios' => $data
+				'usuarios' => $usuarios
 			]);
 
 		})->name('admin-usuarios');

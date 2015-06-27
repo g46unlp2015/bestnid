@@ -48,7 +48,6 @@ $(document).ready(function() {
       if ( ! file.type.match(imageType) ) {
         errores.push('<li class="text-danger">'+file.name+' no es una imagen.</li>');
       }
-
       else if ( file.size > 2097152) {
         errores.push('<li class="text-danger">La imagen '+file.name+' pesa mas de 2MB.</li>');
       }
@@ -71,7 +70,11 @@ $(document).ready(function() {
     var id_foto = elem.data('foto-id');
     var id_subasta = elem.data('subasta-id');
 
-    if ( CANT_FOTOS_EXISTENTES > 1 ) {
+    if ( CANT_FOTOS_EXISTENTES == 1 ) {
+    
+      $('#errores-fotos').append('<li class="text-danger">No puedes borrar la única foto de la subasta</li>');
+    
+    } else {
 
       $.post('/subastas/fotos/borrar', {
 
@@ -81,16 +84,15 @@ $(document).ready(function() {
       }, function(data) {
 
         if (data.status == 200) {
+
           elem.parent().fadeOut();
+          CANT_FOTOS_EXISTENTES--;
+
         } else {
           $('#errores-fotos').append('<li class="text-danger">'+data['error']+'</li>');
         }
 
       });
-
-    } else {
-      $('#errores-fotos').append('<li class="text-danger">No puedes borrar la única foto de la subasta</li>');
-    }
 
   });
 
