@@ -159,9 +159,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 			$subasta = $query->fetch(PDO::FETCH_ASSOC);
 
 			// fotos
-			$query = $app->db->prepare(
-				"SELECT ruta FROM fotos WHERE id_subasta = :id"
-			);
+			$query = $app->db->prepare("SELECT ruta FROM fotos WHERE id_subasta = :id");
 			$query->execute([':id' => $id]);
 			$fotos = $query->fetchAll(PDO::FETCH_ASSOC);
 
@@ -181,6 +179,12 @@ $app->group('/subastas', function () use ($app, $auth) {
 				]);
 				$oferta = $query->fetch(PDO::FETCH_ASSOC);
 			}
+
+			// comentarios
+			// $comentarios = [];
+			// $query = $app->db->prepare("SELECT * FROM comentarios WHERE id_subasta = :id");
+			// $query->execute([':id' => $id]);
+			// $comentarios = $query->fetchAll(PDO::FETCH_ASSOC);
 			
 		} catch (PDOException $e) {
 			$app->flash('error', 'Hubo un error en la base de datos');
@@ -466,10 +470,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 			echo json_encode( ['status' => 200] );
 		}
 
-	})->conditions([
-		':id' => '\d+',
-		':foto' => '\d+'
-	])->name('borrar-foto');
+	})->name('borrar-foto');
 
 // ------------------------------------------------------------------------
 // borrar subasta
@@ -608,5 +609,72 @@ $app->group('/subastas', function () use ($app, $auth) {
 		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
 
 	})->name('modificar-oferta-post');
+
+// ------------------------------------------------------------------------
+// publicar comentario
+// ------------------------------------------------------------------------
+
+	$app->post('/comentario/agregar', $auth(), function () use ($app) {
+
+		// extrae los parametros en variables del mismo nombre que su "key"
+		extract($app->request->params());
+
+		try {
+
+			$query = $app->db->prepare(
+				"INSERT INTO comentarios (texto, id_usuario, id_subasta)
+				VALUES (:texto, :id_usuario, :id_subasta)"
+			);
+
+			$query->execute([
+				':texto' => $texto,
+				':id_usuario' => $id_usuario,
+				':id_subasta' => $id_subasta
+			]);
+
+		} catch (PDOException $e) {
+			$app->flash('error', 'No se pudo actualizar tu oferta');
+		}
+
+		$app->flash('mensaje', 'Se ha publicado tu comentario');
+		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
+
+	})->name('agregar-comentario');
+
+// ------------------------------------------------------------------------
+// AJAX: borrar comentario
+// ------------------------------------------------------------------------
+
+	$app->post('/comentario/borrar', $auth(), function () use ($app) {
+
+		// extrae los parametros en variables del mismo nombre que su "key"
+		extract($app->request->params());
+		$app->response->headers->set('Content-Type', 'application/json');
+
+		try {
+
+			$query = $app->db->prepare(
+				"DELETE FROM comentarios WHERE id = :id
+				AND EXISTS(SELECT * FROM comentarios 
+					WHERE comentarios.id_usuario = :id_usuario 
+					AND comentarios.id = :id)"
+			);
+
+			$query->execute([
+				':id' => $id,
+				':id_usuario' => $_SESSION['usuario']['id']
+			]);
+
+		} catch (PDOException $e) {
+			die( json_encode( ['status' => 403, 'error' => 'Hubo un error en la base de datos.']) );
+		}
+
+		if ( $query->rowCount() == 0 ) {
+			echo json_encode( ['status' => 403, 'error' => 'Ese comentario no existe o no es tuyo.'] );
+		} else {
+			echo json_encode( ['status' => 200] );
+		}
+
+	})->name('borrar-comentario');
 
 });
