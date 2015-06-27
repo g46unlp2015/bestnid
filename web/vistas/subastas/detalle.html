@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <h2 class="subasta-titulo">{{ subasta.titulo }}</h2>
+    
+  <p class="subasta-meta">
+    <div>
+      <small>
+        <span class="glyphicon glyphicon-time"></span>
+        Finaliza en {{ subasta.dias }} dias -- <em>{{ subasta.clicks }} clicks &nbsp;</em>           
+      </small>
+      {% if usuario and usuario.id == subasta.id_usuario %}
+        <div class="btn-group btn-group-xs" role="group">
+          <a href="{{ urlFor('modificar-subasta', {id: subasta.id}) }}" type="submit" class="btn btn-default"> Modificar subasta</a>
+          <a href="{{ urlFor('borrar-subasta', {id: subasta.id}) }}" type="submit" class="btn btn-danger"
+            onclick="return confirm('Estas seguro de borrar esta subasta?');"> Borrar subasta</a>
+        </div>
+      {% endif %}
+    </div>
+  </p>
+
+  <div class="subasta-detalle">
+    <div class="contenido clearfix">
+      <div class="col-md-6">
+        <div class="fotos">
+          {% for foto in fotos | slice(0,1) %}
+            <a class="fancybox" rel="img-detalle" href="{{ uploads.dir ~ foto.ruta }}"><img class="detalle" src="{{ uploads.dir ~ foto.ruta }}"></a>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-md-6">
+        <p><a href="{{ urlFor('categoria', {id: subasta.id_categoria}) }}"><span class="glyphicon glyphicon-tag"></span> {{ categorias[subasta.id_categoria] }}</a></p>
+        <p class="descripcion">{{ subasta.descripcion }}</p>
+        {% for foto in fotos | slice(1, fotos.length) %}
+          <a class="fancybox" rel="img-detalle" href="{{ uploads.dir ~ foto.ruta }}"><img class="detalle-miniatura" src="{{ uploads.dir ~ foto.ruta }}"></a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {% if usuario and usuario.id != subasta.id_usuario %}
+    <div class="subasta-ofertar">
+      {% if oferta %}
+        <div class="col-md-6">
+          <em><strong>"{{ oferta.motivo | trim }}"</strong></em>
+        </div>
+        <!-- demo3: {{ urlFor('modificar-oferta-post') }} -->
+        <form action="#" method="POST" class="form-horizontal" role="form">
+          <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
+          <input type="hidden" name="id_oferta" value="{{ oferta.id }}">
+          <div class="form-group">
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon">$</span>
+                <input type="number" class="form-control" name="monto" min="0" value="{{ oferta.monto }}" required>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <button type="submit" class="btn btn-default">Modificar</button>
+              <a href="#" class="btn btn-danger">Borrar</a>
+            </div>           
+          </div>
+        </form>
+      {% else %}
+        <form action="{{ urlFor('ofertar-post') }}" method="POST" class="form-horizontal" role="form">
+          <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
+          <div class="form-group">
+            <div class="col-md-7">
+              <textarea class="form-control" name="motivo" rows="2" placeholder="¿Te interesa esta subasta? Escribe tu motivo..." required></textarea>
+            </div>
+            <div class="col-md-3">
+              <div class="input-group">
+                <span class="input-group-addon">$</span>
+                <input type="number" class="form-control" name="monto" min="1" placeholder="Monto" required>
+              </div>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-danger">Ofertar</button>
+            </div>
+          </div>
+        </form>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <nav>
+    <ul class="pager">
+      <li class="previous"><a href="javascript:window.history.back()">&larr; Volver</a></li>
+    </ul>
+  </nav>
+
+{% endblock %}

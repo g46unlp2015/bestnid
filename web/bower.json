@@ -4,6 +4,7 @@
   "homepage": "https://github.com/g46unlp2015/bestnid",
   "license": "MIT",
   "dependencies": {
-    "bootstrap": "~3.3.4"
+    "bootstrap": "~3.3.4",
+    "fancybox": "~2.1.5"
   }
 }

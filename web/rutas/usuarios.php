@@ -5,15 +5,18 @@
 // ------------------------------------------------------------------------
 
 $app->get('/registracion', function () use ($app) {
+
 	$app->render('usuarios/registracion.html');
+
 })->name('registracion');
 
 
 $app->post('/registracion', function() use ($app) {
-	$req = $app->request;
-
+	
 	// extrae los parametros en variables del mismo nombre que su "key"
-	extract($req->params());
+	extract($app->request->params());
+
+	$errores = array();
 
 	try {
 
@@ -29,6 +32,7 @@ $app->post('/registracion', function() use ($app) {
 
 	} catch (PDOException $e) {
 		$app->flash('error', 'Hubo un error en la base de datos');
+		$app->redirect($app->urlFor('registracion'));
 	}
 
 	if ( $usuario_existe ) {
@@ -42,7 +46,7 @@ $app->post('/registracion', function() use ($app) {
 	if ( ! empty($errores) ) {
 		$app->flash('errores', $errores);
 		$app->flash('anterior', $req->params());
-		$app->redirect('/registracion');
+		$app->redirect($app->urlFor('registracion'));
 	}
 
 	try {
@@ -65,11 +69,12 @@ $app->post('/registracion', function() use ($app) {
 		]);
 
 	} catch (PDOException $e) {
-		$app->flash('error', 'Hubo un error en la base de datos');
-	} 
-	
+		$app->flash('error', 'No se pudo registrar tu usuario por un error en la base de datos');
+		$app->redirect($app->urlFor('registracion'));
+	}
+
 	$app->flash('mensaje', 'Te has registrado correctamente. Ahora puedes ingresar al sistema.');
-	$app->redirect('/login');
+	$app->redirect($app->urlFor('login'));
 
 })->name('registracion-post');
 
@@ -78,11 +83,14 @@ $app->post('/registracion', function() use ($app) {
 // ------------------------------------------------------------------------
 
 $app->get('/login', function() use ($app) {
+
 	$app->render('usuarios/login.html');
+
 })->name('login');
 
 
 $app->post('/login', function() use ($app) {
+
 	$req = $app->request;
 	
 	$email = $req->params('email');
@@ -91,7 +99,7 @@ $app->post('/login', function() use ($app) {
 	try {
 
 		$query = $app->db->prepare(
-			"SELECT id, email, password, nombre FROM usuarios
+			"SELECT id, email, password, nombre, rol FROM usuarios
 			WHERE email = :email AND password = :password
 			LIMIT 1"
 		);
@@ -101,25 +109,26 @@ $app->post('/login', function() use ($app) {
 			':password' => md5($password)
 		]);
 
-		$user = $query->fetch(PDO::FETCH_ASSOC);
+		$usuario = $query->fetch(PDO::FETCH_ASSOC);
 
 	}
 
 	catch (PDOException $e) {
 		$app->flash('error', 'Hubo un error en la base de datos');
-
+		$app->redirect($app->urlFor('login'));
 	}
 
-	if ( empty($user) ) {
-		$app->flash('error', 'email o contraseña incorrecta');
-		$app->redirect('/login');
+	if ( empty($usuario) ) {
+		$app->flash('error', 'Email o contraseña incorrecta');
+		$app->redirect($app->urlFor('login'));
 	} else {
-		$_SESSION['usuario']['id'] = $user['id'];
-		$_SESSION['usuario']['nombre'] = $user['nombre'];
-		$app->flash('mensaje', 'Bienvenido ' . $user['nombre'] . ', has iniciado sesión.');
+		$_SESSION['usuario']['id'] = $usuario['id'];
+		$_SESSION['usuario']['nombre'] = $usuario['nombre'];
+		$_SESSION['usuario']['rol'] = $usuario['rol'];
+		$app->flash('mensaje', 'Bienvenido ' . $usuario['nombre'] . ', has iniciado sesión.');
 	}	
 
-	$app->redirect('/');
+	$app->redirect($app->urlFor('index'));
 
 })->name('login-post');
 
@@ -133,6 +142,85 @@ $app->get('/logout', function() use ($app) {
 		session_destroy();
 	}
 
-	$app->redirect('/');
+	$app->redirect($app->urlFor('index'));
 
 })->name('logout');
+
+// ------------------------------------------------------------------------
+// perfil
+// ------------------------------------------------------------------------
+
+$app->group('/perfil', $auth(), function () use ($app) {
+	
+	$app->get('/', function() use ($app) {
+
+		$app->redirect($app->urlFor('perfil-subastas'));
+
+	})->name('perfil');
+
+	// mis subastas
+	$app->get('/subastas', function() use ($app) {
+
+		try {
+
+			$query = $app->db->prepare(
+				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto
+				FROM subastas 
+				INNER JOIN fotos ON subastas.id = fotos.id_subasta
+				WHERE finalizacion >= NOW() AND id_usuario = :id
+				GROUP BY id
+				ORDER BY clicks DESC"
+			);
+
+			$query->execute([
+				':id' => $_SESSION['usuario']['id']
+			]);
+
+			$subastas = $query->fetchAll(PDO::FETCH_ASSOC);
+
+		} catch (PDOException $e) {
+			$app->flash('error', $e->getMessage());
+			$app->redirect('/');
+		}
+
+		$app->render('usuarios/perfil/subastas.html', [
+			'subastas' => $subastas
+		]);
+
+	})->name('perfil-subastas');
+
+
+	// mis ofertas
+	$app->get('/ofertas', function() use ($app) {
+		
+		try {
+
+			$query = $app->db->prepare(
+				"SELECT ofertas.*, subastas.titulo, DATEDIFF(subastas.finalizacion,NOW()) AS dias, fotos.ruta AS foto
+				FROM usuarios
+				INNER JOIN ofertas ON ofertas.id_usuario = usuarios.id
+				INNER JOIN subastas ON subastas.id = ofertas.id_subasta
+				INNER JOIN fotos ON fotos.id_subasta = ofertas.id_subasta
+				WHERE finalizacion >= NOW() AND usuarios.id = :id
+				GROUP BY id"
+			);
+
+			$query->execute([
+				':id' => $_SESSION['usuario']['id']
+			]);
+
+			$ofertas = $query->fetchAll(PDO::FETCH_ASSOC);
+
+		} catch (PDOException $e) {
+			$app->flash('error', 'Hubo un error en la base de datos');
+			$app->redirect($app->urlFor('index'));
+		}
+
+		$app->render('usuarios/perfil/ofertas.html', [
+			'ofertas' => $ofertas
+		]);
+
+	})->name('perfil-ofertas');
+
+});
+

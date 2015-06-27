@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+  <div class="col-md-9 col-sm-12 col-xs-12 pull-right">
+    {% block contenido %}
+    {% endblock %}
+  </div>
+
+  {% block paneles %}
+    <!-- paneles -->
+    <div class="col-md-3 col-sm-12 col-xs-12 pull-left">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Administrar</h3>
+        </div>
+        <div class="list-group">
+          <a class="list-group-item" href="#">Ajustes</a>
+          <a class="list-group-item" href="{{ urlFor('admin-categorias') }}">Categorias</a>
+          <!-- demo3: {{ urlFor('admin-usuarios') }} -->
+          <a class="list-group-item" href="#">Usuarios</a>
+        </div>
+      </div>
+
+    </div>
+  {% endblock %}
+
+{% endblock %}

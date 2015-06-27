@@ -36,8 +36,10 @@ $view->parserExtensions = array(
 );
 
 // ------------------------------------------------------------------------
-// informacion global para las vistas
+// informacion global
 // ------------------------------------------------------------------------
+
+$app->container->set('config', $config);
 
 $app->container->set('categorias', function () use ($app) {
 	
@@ -58,14 +60,45 @@ $app->container->set('categorias', function () use ($app) {
 
 $app->hook('slim.before.dispatch', function() use ($app) {
 
-	// session
+	// sesion
 	if ( isset($_SESSION['usuario']) ) {
-		$app->view()->setData('session', $_SESSION['usuario']);
+		$app->view()->setData('usuario', $_SESSION['usuario']);
 	}
 	
+	// categorias
 	$app->view()->setData('categorias', $app->categorias);
 
+	// uploads
+	$app->view()->setData('uploads', [
+		'dir' => $app->config['uploads.dir']
+	]);
+
 });
+
+// ------------------------------------------------------------------------
+// autenticacion
+// ------------------------------------------------------------------------
+
+$auth = function ( $rol = 'miembro' ) {
+
+    return function () use ( $rol ) {
+
+    	$app = \Slim\Slim::getInstance();
+
+    	if ( isset($_SESSION['usuario']) ) {
+    		if ($_SESSION['usuario']['rol'] !== $rol ) {	            
+	            $app->flash('error', 'No tienes permiso para ver esta pagina.');
+	            $app->redirect('/login');
+        	}
+
+        } else {
+        	$app->flash('error', 'Necesitas registrarte o iniciar sesión.');
+	        $app->redirect('/login');
+        }
+
+    };
+    
+};
 
 // ------------------------------------------------------------------------
 // rutas

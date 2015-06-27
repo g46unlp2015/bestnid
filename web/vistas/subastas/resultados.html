@@ -29,22 +29,16 @@
       <button type="submit" class="btn btn-default">Filtrar</button>
     </form>
     <br>
-    <!-- <div class="checkbox">
-        <label>
-          <input type="checkbox"> Buscar en descripción
-        </label>
-      </div> -->
-
     <div class="subastas">
       {% for subasta in subastas %}
       <div class="subasta-item media">
         <div class="media-left">
-            <a href="#">
-              <img src="/uploads/{{ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
+            <a href="{{ urlFor('subasta', {id: subasta.id}) }}">
+              <img src="{{ uploads.dir ~ subasta.foto }}" class="media-object" style="width: 120px; height: 120px; object-fit: cover;">
             </a>
         </div>
         <div class="media-body">
-        <h4 class="media-heading"><a href="#">{{ subasta.titulo }}</a></h4>
+        <h4 class="media-heading"><a href="{{ urlFor('subasta', {id: subasta.id}) }}">{{ subasta.titulo }}</a></h4>
         <p>{{ subasta.descripcion }}</p>
         <p class="subasta-meta">
           <small>
@@ -52,7 +46,7 @@
             <span class="glyphicon glyphicon-time"></span>
             Finaliza el {{ subasta.finalizacion | date("d-m-Y") }}            
           </small>
-          <a href="#" class="btn btn-default pull-right" role="button">Ver subasta</a>
+          <a href="{{ urlFor('subasta', {id: subasta.id}) }}" class="btn btn-default pull-right" role="button">Ver subasta</a>
         </p>
         </div>
       </div>

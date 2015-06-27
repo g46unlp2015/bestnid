@@ -2,9 +2,10 @@
 
 $app->get('/buscar', function () use ($app) {
 	$req = $app->request;
+	$subastas = array();	
 
 	$q = $req->params('q');
-	$cat_id = $req->params('cat_id');
+	$id_categoria = $req->params('id_categoria');
 	$desde = $req->params('desde') ? $req->params('desde') : date('Y-m-d');
 	$hasta = $req->params('hasta') ? $req->params('hasta') : date('Y-m-d', strtotime('+30 days'));
 	$order = $req->params('order') ? $req->params('order') : 'popularidad';
@@ -23,16 +24,18 @@ $app->get('/buscar', function () use ($app) {
 			$sql_order = '';
 	}
 
-	$sql_categoria = ($cat_id == 0) ? '' : 'AND id_categoria = ' . (int)$cat_id;
+	$sql_categoria = ($id_categoria == 0) ? '' : 'AND id_categoria = ' . (int)$id_categoria;
 
 	try {
 
 		$query = $app->db->prepare(
-			"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias 
+			"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto 
 			FROM subastas 
+			INNER JOIN fotos ON subastas.id = fotos.id_subasta 
 			WHERE titulo LIKE CONCAT('%', :q, '%')
 			AND finalizacion >= :desde AND finalizacion >= NOW()
 			AND finalizacion <= :hasta
+			GROUP BY subastas.id
 			{$sql_categoria} {$sql_order}"
 		);
 
@@ -50,14 +53,14 @@ $app->get('/buscar', function () use ($app) {
 	}
 
 	$filtros = [
-		'cat_id' => $cat_id,
+		'id_categoria' => $id_categoria,
 		'desde' => $desde,
 		'hasta' => $hasta,
 		'order' => ['popularidad', 'finalizacion', 'ultimas'],
 		'order_selected' => $order
 	];
 
-	$app->render('resultados.html', [
+	$app->render('subastas/resultados.html', [
 			'subastas' => $subastas,
 			'q' => $q,
 			'filtros' => $filtros

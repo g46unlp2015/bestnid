@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>bestnid</title>
   <link rel="stylesheet" href="/dependencias/componentes/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/dependencias/componentes/fancybox/source/jquery.fancybox.css">
   <link rel="stylesheet" type="text/css" href="/css/base.css">
+  {% block css %}{% endblock %}
 </head>
 <body>
   <div class="container">
@@ -13,22 +15,21 @@
     {% block header %}
 
     <div class="row menu">
-
-      <div class="col-md-3 pull-left">
-        <a href="{{ urlFor('index') }}">
-          <img class="center-block" alt="bestnid" src="/img/logo.png">
+      <div class="col-md-3">
+        <a class="logo" href="{{ urlFor('index') }}">
+          <img alt="bestnid" src="/img/logo2.png">
         </a>
       </div>
-      
-      <div class="col-md-9 vcenter" style="height: 0em">
+
+      <div class="col-md-9" style="padding-top: 18px;">    
         <!-- buscador -->
-        <form class="navbar-form form-inline pull-left" method="GET" action="{{ urlFor('buscar-subastas') }}">
+        <form class="navbar-form pull-left" method="GET" action="{{ urlFor('buscar-subastas') }}">
           <div class="form-group">
             <input type="text" class="form-control" id="buscador" name="q" style="width: 230px">
-            <select class="form-control" id="cat_id" name="cat_id" style="width: 215px;">
+            <select class="form-control" id="id_categoria" name="id_categoria" style="width: 215px;">
               <option value="0">Todas las categorías</option>
               {% for id, categoria in categorias %}
-                {% if id == filtros.cat_id %}
+                {% if id == filtros.id_categoria %}
                   <option value="{{ id }}" selected>{{ categoria }}</option>
                 {% else %}
                   <option value="{{ id }}">{{ categoria }}</option>
@@ -38,21 +39,25 @@
           </div>
           <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span> Buscar</button>
         </form>
-
         <!-- menu -->
         <ul class="nav nav-pills pull-right">
-          {% if session %}
-            <li role="presentation"><a href="#">{{ session.nombre }}</a></li>
+          {% if usuario %}
+            <li role="presentation">
+              <!-- demo3: {{ usuario.rol == 'admin' ? urlFor('admin') : urlFor('perfil') }} -->
+              <a href="#">
+                <span class="glyphicon glyphicon-user"></span> {{ usuario.nombre | split(' ') | first }}
+              </a>
+            </li>
             <li role="presentation"><a href="{{ urlFor('logout') }}">Salir</a></li>
           {% else %}
-            <li role="presentation"><a href="{{ urlFor('login') }}">Ingresar</a></li>
-            <li role="presentation"><a href="{{ urlFor('registracion') }}">Registrarse</a></li>
+            <li role="presentation"><a href="{{ urlFor('login') }}">
+              <span class="glyphicon glyphicon-user"></span> Ingresar</a>
+            </li>
+            <li role="presentation"><a href="{{ urlFor('registracion') }}"><span class="glyphicon glyphicon-pencil"></span> Registrarse</a></li>
           {% endif %}
-          <li role="presentation"><a href="#">Ayuda</a></li>
         </ul>
-
       </div>
-
+      
     </div>
 
     {% endblock %}
@@ -71,7 +76,7 @@
 
     {% block main %}
 
-      <div class="col-md-9 pull-right">
+      <div class="col-md-9 col-sm-12 col-xs-12 pull-right">
         {% block contenido %}
         {% endblock %}
       </div>
@@ -79,23 +84,30 @@
       {% block paneles %}
         <!-- paneles -->
         <div class="col-md-3 col-sm-12 col-xs-12 pull-left">
-
+          
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">Listar subastas</h3>
+              <h3 class="panel-title">Subastas</h3>
             </div>
-            <div class="panel-body">
-              <ul class="list-unstyled">
-                <li><a href="{{ urlFor('ordenar-popularidad') }}">Subastas mas populares</a></li>
-                <li><a href="{{ urlFor('ordenar-finalizacion') }}">Próximas a finalizar</a></li>
-                <li><a href="{{ urlFor('ordenar-ultimas') }}">Ultimas agregadas</a></li>
-              </ul>
+            <div class="list-group">
+              <a class="list-group-item" href="{{ urlFor('ordenar-popularidad') }}">Mas populares</a>
+              <a class="list-group-item" href="{{ urlFor('ordenar-finalizacion') }}">Próximas a finalizar</a>
+              <a class="list-group-item" href="{{ urlFor('ordenar-ultimas') }}">Ultimas agregadas</a>
             </div>
+          </div>
+
+          <div class="panel">
+            <a class="list-group-item" href="{{ urlFor('publicar-subasta') }}"><span class="glyphicon glyphicon-bullhorn"></span> Publicar subasta</a>
           </div>
 
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">Categorias</h3>
+              <h3 class="panel-title">
+                Categorias
+                {% if usuario and usuario.rol == 'admin' %}
+                  <span class="pull-right"> | <a href="{{ urlFor('admin-categorias')}}">editar</a></span>
+                {% endif %}
+              </h3>
             </div>
             <div class="panel-body">
               <ul class="list-unstyled">
@@ -105,7 +117,6 @@
               </ul>
             </div>
           </div>
-
         </div>
       {% endblock %}
       
@@ -117,6 +128,19 @@
 
   <script src="/dependencias/componentes/jquery/dist/jquery.min.js"></script>
   <script src="/dependencias/componentes/bootstrap/dist/js/bootstrap.min.js"></script>
-  
+  <script src="/dependencias/componentes/fancybox/source/jquery.fancybox.pack.js"></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+      $(".fancybox").fancybox();
+      $('[data-toggle="tooltip"]').tooltip(); 
+    });
+
+    {% block js %}
+    {% endblock %}
+
+  </script>
+
 </body>
 </html>
