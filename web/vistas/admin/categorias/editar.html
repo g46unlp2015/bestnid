@@ -2,11 +2,11 @@
 
 {% block contenido %}
 
-  <form action="{{ urlFor('admin-editar-categoria-post') }}" method="POST" class="form-horizontal" role="form">
+  <form id="form-editar" action="{{ urlFor('admin-editar-categoria-post') }}" method="POST" class="form-horizontal" role="form">
     <input type="hidden" value="{{ categoria.id }}" name="id">
     <div class="form-group">
       <div class="col-md-10">
-        <input type="text" class="form-control" name="nombre" value="{{ categoria.nombre }}" required>
+        <input id="input-nombre" type="text" class="form-control" name="nombre" value="{{ categoria.nombre }}" required>
       </div>
       <div class="col-md-2">
         <button type="submit" class="btn btn-primary">Editar</button>
@@ -33,4 +33,11 @@
     </tbody>
   </table>
 
+{% endblock %}
+
+{% block js %}
+  // editar nombre categoria
+    $(document).ready(function() {
+      $('#input-nombre').focus();
+    });
 {% endblock %}

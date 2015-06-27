@@ -131,13 +131,16 @@
   <script src="/dependencias/componentes/fancybox/source/jquery.fancybox.pack.js"></script>
 
   <script type="text/javascript">
+
     $(document).ready(function() {
       $(".fancybox").fancybox();
       $('[data-toggle="tooltip"]').tooltip(); 
     });
+
+    {% block js %}
+    {% endblock %}
+
   </script>
 
-  {% block js %}{% endblock %}
-  
 </body>
 </html>
