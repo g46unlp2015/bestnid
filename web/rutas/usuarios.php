@@ -20,14 +20,8 @@ $app->post('/registracion', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare(
-			"SELECT id FROM usuarios WHERE email = :email LIMIT 1"
-		);
-
-		$query->execute([
-			':email' => $email
-		]);
-
+		$query = $app->db->prepare("SELECT id FROM usuarios WHERE email = :email LIMIT 1");
+		$query->execute([':email' => $email]);
 		$usuario_existe = $query->fetch();
 
 	} catch (PDOException $e) {
@@ -45,7 +39,7 @@ $app->post('/registracion', function() use ($app) {
 
 	if ( ! empty($errores) ) {
 		$app->flash('errores', $errores);
-		$app->flash('anterior', $req->params());
+		$app->flash('anterior', $app->request->params());
 		$app->redirect($app->urlFor('registracion'));
 	}
 
