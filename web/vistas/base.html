@@ -43,8 +43,7 @@
         <ul class="nav nav-pills pull-right">
           {% if usuario %}
             <li role="presentation">
-              <!-- demo3: {{ usuario.rol == 'admin' ? urlFor('admin') : urlFor('perfil') }} -->
-              <a href="#">
+              <a href="{{ usuario.rol == 'admin' ? urlFor('admin') : urlFor('perfil') }}">
                 <span class="glyphicon glyphicon-user"></span> {{ usuario.nombre | split(' ') | first }}
               </a>
             </li>
@@ -137,10 +136,10 @@
       $('[data-toggle="tooltip"]').tooltip(); 
     });
 
-    {% block js %}
-    {% endblock %}
-
   </script>
 
+  {% block js %}
+  {% endblock %}
+  
 </body>
 </html>

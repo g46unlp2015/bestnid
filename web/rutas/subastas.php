@@ -158,6 +158,11 @@ $app->group('/subastas', function () use ($app, $auth) {
 			$query->execute([':id' => $id]);
 			$subasta = $query->fetch(PDO::FETCH_ASSOC);
 
+			if ( $query->rowCount() == 0 ) {
+				$app->flash('error', 'No existe esa subasta');
+				$app->redirect($app->urlFor('index'));
+			}
+
 			// fotos
 			$query = $app->db->prepare("SELECT ruta FROM fotos WHERE id_subasta = :id");
 			$query->execute([':id' => $id]);
@@ -180,11 +185,17 @@ $app->group('/subastas', function () use ($app, $auth) {
 				$oferta = $query->fetch(PDO::FETCH_ASSOC);
 			}
 
-			// comentarios
-			// $comentarios = [];
-			// $query = $app->db->prepare("SELECT * FROM comentarios WHERE id_subasta = :id");
-			// $query->execute([':id' => $id]);
-			// $comentarios = $query->fetchAll(PDO::FETCH_ASSOC);
+			// preguntas
+			$preguntas = [];
+			$query = $app->db->prepare(
+				"SELECT usuarios.nombre, preguntas.*, respuestas.id AS id_respuesta, respuestas.texto AS texto_respuesta
+				FROM preguntas
+				INNER JOIN usuarios ON preguntas.id_usuario = usuarios.id
+				LEFT JOIN respuestas ON respuestas.id_pregunta = preguntas.id
+				WHERE preguntas.id_subasta = :id"
+			);
+			$query->execute([':id' => $id]);
+			$preguntas = $query->fetchAll(PDO::FETCH_ASSOC);
 			
 		} catch (PDOException $e) {
 			$app->flash('error', 'Hubo un error en la base de datos');
@@ -204,7 +215,8 @@ $app->group('/subastas', function () use ($app, $auth) {
 		$app->render('subastas/detalle.html', [
 				'subasta' => $subasta,
 				'oferta' => $oferta,
-				'fotos' => $fotos
+				'fotos' => $fotos,
+				'preguntas' => $preguntas
 			]
 		);
 
@@ -301,7 +313,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 	})->name('publicar-subasta-post');
 
 // ------------------------------------------------------------------------
-// modificar subasta (aca es donde me doy cuenta que tengo que refactorizar)
+// modificar subasta
 // ------------------------------------------------------------------------
 
 	$app->get('/modificar/:id', $auth(), function ($id) use ($app) {
@@ -535,7 +547,16 @@ $app->group('/subastas', function () use ($app, $auth) {
 			);
 			$query->execute([':id' => $id]);
 
-			// --- borrar comentarios ----
+			// borrar respuestas
+			$query = $app->db->prepare(
+				"DELETE FROM respuestas 
+				WHERE respuestas.id_pregunta IN (SELECT id FROM preguntas WHERE preguntas.id_subasta = :id)"
+			);
+			$query->execute([':id' => $id]);
+
+			// borrar preguntas
+			$query = $app->db->prepare("DELETE FROM preguntas WHERE preguntas.id_subasta = :id");
+			$query->execute([':id' => $id]);
 			
 		} catch (PDOException $e) {
 			$app->flash('error', 'Hubo un error en la base de datos');
@@ -611,10 +632,10 @@ $app->group('/subastas', function () use ($app, $auth) {
 	})->name('modificar-oferta-post');
 
 // ------------------------------------------------------------------------
-// publicar comentario
+// preguntar
 // ------------------------------------------------------------------------
 
-	$app->post('/comentario/agregar', $auth(), function () use ($app) {
+	$app->post('/preguntar', $auth(), function () use ($app) {
 
 		// extrae los parametros en variables del mismo nombre que su "key"
 		extract($app->request->params());
@@ -622,30 +643,60 @@ $app->group('/subastas', function () use ($app, $auth) {
 		try {
 
 			$query = $app->db->prepare(
-				"INSERT INTO comentarios (texto, id_usuario, id_subasta)
+				"INSERT INTO preguntas (texto, id_usuario, id_subasta)
 				VALUES (:texto, :id_usuario, :id_subasta)"
 			);
 
 			$query->execute([
 				':texto' => $texto,
-				':id_usuario' => $id_usuario,
-				':id_subasta' => $id_subasta
+				':id_subasta' => $id_subasta,
+				':id_usuario' => $_SESSION['usuario']['id']
 			]);
 
 		} catch (PDOException $e) {
-			$app->flash('error', 'No se pudo actualizar tu oferta');
+			$app->flash('error', 'Hubo un error en la base de datos');
 		}
 
-		$app->flash('mensaje', 'Se ha publicado tu comentario');
+		$app->flash('mensaje', 'Se ha publicado tu pregunta');
 		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
 
-	})->name('agregar-comentario');
+	})->name('preguntar');
 
 // ------------------------------------------------------------------------
-// AJAX: borrar comentario
+// responder
 // ------------------------------------------------------------------------
 
-	$app->post('/comentario/borrar', $auth(), function () use ($app) {
+	$app->post('/responder', $auth(), function () use ($app) {
+
+		// extrae los parametros en variables del mismo nombre que su "key"
+		extract($app->request->params());
+
+		try {
+
+			$query = $app->db->prepare(
+				"INSERT INTO respuestas (texto, id_pregunta)
+				VALUES (:texto, :id_pregunta)"
+			);
+
+			$query->execute([
+				':texto' => $texto,
+				':id_pregunta' => $id_pregunta
+			]);
+
+		} catch (PDOException $e) {
+			$app->flash('error', 'Hubo un error en la base de datos');
+		}
+
+		$app->flash('mensaje', 'Se ha publicado tu respuesta');
+		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));
+
+	})->name('responder');
+
+// ------------------------------------------------------------------------
+// AJAX: borrar pregunta
+// ------------------------------------------------------------------------
+
+	$app->post('/pregunta/borrar', $auth(), function () use ($app) {
 
 		// extrae los parametros en variables del mismo nombre que su "key"
 		extract($app->request->params());
@@ -654,10 +705,10 @@ $app->group('/subastas', function () use ($app, $auth) {
 		try {
 
 			$query = $app->db->prepare(
-				"DELETE FROM comentarios WHERE id = :id
-				AND EXISTS(SELECT * FROM comentarios 
-					WHERE comentarios.id_usuario = :id_usuario 
-					AND comentarios.id = :id)"
+				"DELETE FROM preguntas WHERE id = :id
+				AND EXISTS(SELECT * FROM preguntas 
+					WHERE preguntas.id_usuario = :id_usuario 
+					AND preguntas.id = :id)"
 			);
 
 			$query->execute([
@@ -670,11 +721,11 @@ $app->group('/subastas', function () use ($app, $auth) {
 		}
 
 		if ( $query->rowCount() == 0 ) {
-			echo json_encode( ['status' => 403, 'error' => 'Ese comentario no existe o no es tuyo.'] );
+			echo json_encode( ['status' => 403, 'error' => 'Esa pregunta no existe o no es tuyo.'] );
 		} else {
 			echo json_encode( ['status' => 200] );
 		}
 
-	})->name('borrar-comentario');
+	})->name('borrar-pregunta');
 
 });

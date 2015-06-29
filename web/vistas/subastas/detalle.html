@@ -45,8 +45,7 @@
         <div class="col-md-6">
           <em><strong>"{{ oferta.motivo | trim }}"</strong></em>
         </div>
-        <!-- demo3: {{ urlFor('modificar-oferta-post') }} -->
-        <form action="#" method="POST" class="form-horizontal" role="form">
+        <form action="urlFor('modificar-oferta-post')" method="POST" class="form-horizontal" role="form">
           <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
           <input type="hidden" name="id_oferta" value="{{ oferta.id }}">
           <div class="form-group">
@@ -84,10 +83,72 @@
     </div>
   {% endif %}
 
+  <h3>Preguntas</h3><hr>
+
+  {% if preguntas %}
+    <div class="subasta-preguntas">
+      {% for pregunta in preguntas %}
+        <div class="subasta-pregunta">
+          <strong>{{ pregunta.nombre }}: </strong>
+          <p>{{ pregunta.texto }}</p>
+          {% if pregunta.id_respuesta %}
+            <div class="subasta-respuesta">
+              <em><strong style="color: red">Respuesta</strong></em>
+              <p>{{ pregunta.texto_respuesta }}</p>
+            </div>
+          {% endif %}
+          {% if usuario and usuario.id == subasta.id_usuario and not pregunta.id_respuesta %}
+            <p><a href="#" class="responder" data-id="{{ pregunta.id }}">Responder</a></p>
+            <form action="{{ urlFor('responder') }}" method="POST" id="responder-{{ pregunta.id }}" class="form-horizontal" role="form" style="display:none">
+              <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
+              <input type="hidden" name="id_pregunta" value="{{ pregunta.id }}">
+              <div class="form-group">
+                <div class="col-md-10">
+                  <textarea class="form-control" name="texto" rows="2" placeholder="Escribe una respuesta..." required></textarea>
+                </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-default">Enviar</button>
+                </div>
+              </div>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  
+  {% if usuario and usuario.id != subasta.id_usuario %}
+    <div class="subasta-preguntar">
+      <form action="{{ urlFor('preguntar') }}" method="POST" class="form-horizontal" role="form">
+        <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
+        <div class="form-group">
+          <div class="col-md-10">
+            <textarea class="form-control" name="texto" rows="2" placeholder="Escribe una pregunta..." required></textarea>
+          </div>
+          <div class="col-md-2">
+            <button type="submit" class="btn btn-danger">Preguntar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  {% endif %}
+
   <nav>
     <ul class="pager">
       <li class="previous"><a href="javascript:window.history.back()">&larr; Volver</a></li>
     </ul>
   </nav>
 
+{% endblock %}
+
+{% block js %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('a.responder').click(function(e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        $('#responder-' + id).toggle();
+      });
+    });
+  </script>
 {% endblock %}

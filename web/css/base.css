@@ -62,7 +62,7 @@ body {
 	margin-top: 0px;
 }
 
-.subasta-detalle {
+.subasta-detalle, .subasta-preguntas {
 	background: whitesmoke;
 }
 
@@ -78,10 +78,25 @@ body {
 	background: white;
 }
 
-.subasta-ofertar {
-	margin-top: 15px;
+.subasta-ofertar, .subasta-preguntar {
 	padding: 15px;
 	background: rgb(230, 230, 230);
+}
+
+.subasta-preguntas {
+	padding: 15px;
+}
+
+.subasta-pregunta {
+	border-left: 2px solid gray;
+	padding-left: 15px;
+	margin-bottom: 15px;
+}
+
+.subasta-respuesta {
+	border-left: 2px solid red;
+	padding-left: 15px;
+	margin-bottom: 15px;
 }
 
 img.detalle {
