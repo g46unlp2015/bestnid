@@ -8,9 +8,9 @@
     <div>
       <small>
         <span class="glyphicon glyphicon-time"></span>
-        Finaliza en {{ subasta.dias }} dias -- <em>{{ subasta.clicks }} clicks &nbsp;</em>           
+        {{ subasta.dias > 0 ? 'Finaliza en ' ~ subasta.dias ~ ' dias.' : 'Finalizó' }} -- <em>{{ subasta.clicks }} clicks &nbsp;</em>           
       </small>
-      {% if usuario and usuario.id == subasta.id_usuario %}
+      {% if usuario and usuario.id == subasta.id_usuario and subasta.dias > 0 %}
         <div class="btn-group btn-group-xs" role="group">
           <a href="{{ urlFor('modificar-subasta', {id: subasta.id}) }}" type="submit" class="btn btn-default"> Modificar subasta</a>
           <a href="{{ urlFor('borrar-subasta', {id: subasta.id}) }}" type="submit" class="btn btn-danger"
@@ -39,98 +39,107 @@
     </div>
   </div>
 
-  {% if usuario and usuario.id != subasta.id_usuario %}
-    <div class="subasta-ofertar">
-      {% if oferta %}
-        <div class="col-md-6">
-          <em><strong>"{{ oferta.motivo | trim }}"</strong></em>
-        </div>
-        <form action="urlFor('modificar-oferta-post')" method="POST" class="form-horizontal" role="form">
-          <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
-          <input type="hidden" name="id_oferta" value="{{ oferta.id }}">
-          <div class="form-group">
-            <div class="col-md-3">
-              <div class="input-group">
-                <span class="input-group-addon">$</span>
-                <input type="number" class="form-control" name="monto" min="0" value="{{ oferta.monto }}" required>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <button type="submit" class="btn btn-default">Modificar</button>
-              <a href="#" class="btn btn-danger">Borrar</a>
-            </div>           
+  {% if subasta.dias > 0 %}
+
+    {% if usuario and usuario.id != subasta.id_usuario %}
+      <div class="subasta-ofertar">
+        {% if oferta %}
+          <div class="col-md-6">
+            <em><strong>"{{ oferta.motivo | trim }}"</strong></em>
           </div>
-        </form>
-      {% else %}
-        <form action="{{ urlFor('ofertar-post') }}" method="POST" class="form-horizontal" role="form">
+          <form action="{{ urlFor('modificar-oferta-post') }}" method="POST" class="form-horizontal" role="form">
+            <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
+            <input type="hidden" name="id_oferta" value="{{ oferta.id }}">
+            <div class="form-group">
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-addon">$</span>
+                  <input type="number" class="form-control" name="monto" min="0" value="{{ oferta.monto }}" required>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <button type="submit" class="btn btn-default">Modificar</button>
+                <a href="{{ urlFor('borrar-oferta', {id: subasta.id, id_oferta: oferta.id}) }}" class="btn btn-danger">Borrar</a>
+              </div>           
+            </div>
+          </form>
+        {% else %}
+          <form action="{{ urlFor('ofertar-post') }}" method="POST" class="form-horizontal" role="form">
+            <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
+            <div class="form-group">
+              <div class="col-md-7">
+                <textarea class="form-control" name="motivo" rows="2" placeholder="¿Te interesa esta subasta? Escribe tu motivo..." required></textarea>
+              </div>
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-addon">$</span>
+                  <input type="number" class="form-control" name="monto" min="1" placeholder="Monto" required>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-danger">Ofertar</button>
+              </div>
+            </div>
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <h3>Preguntas</h3><hr>
+
+    {% if preguntas %}
+      <div class="subasta-preguntas">
+        {% for pregunta in preguntas %}
+          <div class="subasta-pregunta">
+            <strong>{{ pregunta.nombre }}: </strong>
+            <p>{{ pregunta.texto }}</p>
+            {% if pregunta.id_respuesta %}
+              <div class="subasta-respuesta">
+                <em><strong style="color: red">Respuesta</strong></em>
+                <p>{{ pregunta.texto_respuesta }}</p>
+              </div>
+            {% endif %}
+            <!-- borrar comentario
+            {% if usuario and usuario.id == pregunta.id_usuario %}
+              <p><small><a href="#" class="responder" data-id="{{ pregunta.id }}">Borrar</a></small></p>
+            {% endif %}
+            -->
+            {% if usuario and usuario.id == subasta.id_usuario and not pregunta.id_respuesta %}
+              <p><a href="#" class="btn btn-default btn-xs responder" data-id="{{ pregunta.id }}">Responder</a></p>
+              <form action="{{ urlFor('responder') }}" method="POST" id="responder-{{ pregunta.id }}" class="form-horizontal" role="form" style="display:none">
+                <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
+                <input type="hidden" name="id_pregunta" value="{{ pregunta.id }}">
+                <div class="form-group">
+                  <div class="col-md-10">
+                    <textarea class="form-control" name="texto" rows="2" placeholder="Escribe una respuesta..." required></textarea>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="submit" class="btn btn-default">Enviar</button>
+                  </div>
+                </div>
+              </form>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    
+    {% if usuario and usuario.id != subasta.id_usuario %}
+      <div class="subasta-preguntar">
+        <form action="{{ urlFor('preguntar') }}" method="POST" class="form-horizontal" role="form">
           <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
           <div class="form-group">
-            <div class="col-md-7">
-              <textarea class="form-control" name="motivo" rows="2" placeholder="¿Te interesa esta subasta? Escribe tu motivo..." required></textarea>
-            </div>
-            <div class="col-md-3">
-              <div class="input-group">
-                <span class="input-group-addon">$</span>
-                <input type="number" class="form-control" name="monto" min="1" placeholder="Monto" required>
-              </div>
+            <div class="col-md-10">
+              <textarea class="form-control" name="texto" rows="2" placeholder="Escribe una pregunta..." required></textarea>
             </div>
             <div class="col-md-2">
-              <button type="submit" class="btn btn-danger">Ofertar</button>
+              <button type="submit" class="btn btn-danger">Preguntar</button>
             </div>
           </div>
         </form>
-      {% endif %}
-    </div>
-  {% endif %}
+      </div>
+    {% endif %}
 
-  <h3>Preguntas</h3><hr>
-
-  {% if preguntas %}
-    <div class="subasta-preguntas">
-      {% for pregunta in preguntas %}
-        <div class="subasta-pregunta">
-          <strong>{{ pregunta.nombre }}: </strong>
-          <p>{{ pregunta.texto }}</p>
-          {% if pregunta.id_respuesta %}
-            <div class="subasta-respuesta">
-              <em><strong style="color: red">Respuesta</strong></em>
-              <p>{{ pregunta.texto_respuesta }}</p>
-            </div>
-          {% endif %}
-          {% if usuario and usuario.id == subasta.id_usuario and not pregunta.id_respuesta %}
-            <p><a href="#" class="responder" data-id="{{ pregunta.id }}">Responder</a></p>
-            <form action="{{ urlFor('responder') }}" method="POST" id="responder-{{ pregunta.id }}" class="form-horizontal" role="form" style="display:none">
-              <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
-              <input type="hidden" name="id_pregunta" value="{{ pregunta.id }}">
-              <div class="form-group">
-                <div class="col-md-10">
-                  <textarea class="form-control" name="texto" rows="2" placeholder="Escribe una respuesta..." required></textarea>
-                </div>
-                <div class="col-md-2">
-                  <button type="submit" class="btn btn-default">Enviar</button>
-                </div>
-              </div>
-            </form>
-          {% endif %}
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
-  
-  {% if usuario and usuario.id != subasta.id_usuario %}
-    <div class="subasta-preguntar">
-      <form action="{{ urlFor('preguntar') }}" method="POST" class="form-horizontal" role="form">
-        <input type="hidden" name="id_subasta" value="{{ subasta.id }}">
-        <div class="form-group">
-          <div class="col-md-10">
-            <textarea class="form-control" name="texto" rows="2" placeholder="Escribe una pregunta..." required></textarea>
-          </div>
-          <div class="col-md-2">
-            <button type="submit" class="btn btn-danger">Preguntar</button>
-          </div>
-        </div>
-      </form>
-    </div>
   {% endif %}
 
   <nav>
@@ -147,7 +156,7 @@
       $('a.responder').click(function(e) {
         e.preventDefault();
         var id = $(this).data('id');
-        $('#responder-' + id).toggle();
+        $('form#responder-' + id).toggle();
       });
     });
   </script>

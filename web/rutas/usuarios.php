@@ -161,9 +161,9 @@ $app->group('/perfil', $auth(), function () use ($app) {
 				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto
 				FROM subastas 
 				INNER JOIN fotos ON subastas.id = fotos.id_subasta
-				WHERE finalizacion >= NOW() AND id_usuario = :id
+				WHERE id_usuario = :id
 				GROUP BY id
-				ORDER BY clicks DESC"
+				ORDER BY finalizacion"
 			);
 
 			$query->execute([
@@ -215,6 +215,37 @@ $app->group('/perfil', $auth(), function () use ($app) {
 		]);
 
 	})->name('perfil-ofertas');
+
+	// mis preguntas
+	$app->get('/preguntas', function() use ($app) {
+		
+		try {
+
+			$query = $app->db->prepare(
+				"SELECT subastas.titulo AS subasta, preguntas.*, respuestas.id AS id_respuesta, respuestas.texto AS texto_respuesta
+				FROM preguntas
+				INNER JOIN usuarios ON preguntas.id_usuario = usuarios.id
+				INNER JOIN subastas ON preguntas.id_subasta = subastas.id
+				LEFT JOIN respuestas ON respuestas.id_pregunta = preguntas.id
+				WHERE preguntas.id_usuario = :id"
+			);
+
+			$query->execute([
+				':id' => $_SESSION['usuario']['id']
+			]);
+
+			$preguntas = $query->fetchAll(PDO::FETCH_ASSOC);
+
+		} catch (PDOException $e) {
+			$app->flash('error', 'Hubo un error en la base de datos');
+			$app->redirect($app->urlFor('index'));
+		}
+
+		$app->render('usuarios/perfil/preguntas.html', [
+			'preguntas' => $preguntas
+		]);
+
+	})->name('perfil-preguntas');
 
 });
 

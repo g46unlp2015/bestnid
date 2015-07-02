@@ -27,7 +27,7 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 
 		
 		// borrar
-		$app->get('/borrar/:id', function ($id) use ($app) {
+		$app->get('/:id/borrar', function ($id) use ($app) {
 
 			try {
 				// comprobar ofertas existentes
@@ -90,7 +90,7 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 		})->name('admin-agregar-categoria');
 
 		// editar
-		$app->get('/editar/:id', function ($id) use ($app) {
+		$app->get('/:id/editar', function ($id) use ($app) {
 
 			try {
 				
@@ -175,7 +175,7 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 		})->name('admin-agregar-usuario');
 
 		// borrar
-		$app->get('/borrar/:id', function ($id) use ($app) {
+		$app->get('/:id/borrar', function ($id) use ($app) {
 
 			try {
 

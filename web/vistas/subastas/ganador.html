@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <h2 class="subasta-titulo">{{ subasta.titulo }}</h2>
+    
+  <p class="subasta-meta">
+    <div>
+      <small>
+        <span class="glyphicon glyphicon-time"></span>
+        {{ subasta.dias > 0 ? 'Finaliza en ' ~ subasta.dias ~ ' dias.' : 'Finalizó'}} -- <em>{{ subasta.clicks }} clicks</em>           
+      </small>
+    </div>
+  </p>
+
+  <div class="jumbotron">
+    <h2 class="text-center">El ganador es <strong>{{ ganador.nombre }}</strong></h2>
+  </div>
+
+  <div class="subasta-detalle">
+    <div class="contenido clearfix">
+      <div class="col-md-2">
+        <a class="fancybox" rel="img-detalle" href="{{ uploads.dir ~ subasta.foto }}"><img style="width: 100%" src="{{ uploads.dir ~ subasta.foto }}"></a>
+      </div>
+      <div class="col-md-10">
+        <p><a href="{{ urlFor('categoria', {id: subasta.id_categoria}) }}"><span class="glyphicon glyphicon-tag"></span> {{ categorias[subasta.id_categoria] }}</a></p>
+        <p class="descripcion">{{ subasta.descripcion }}</p>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <ul class="pager">
+      <li class="previous"><a href="javascript:window.history.back()">&larr; Volver</a></li>
+    </ul>
+  </nav>
+
+{% endblock %}

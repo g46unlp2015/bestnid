@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+
+  <h2 class="subasta-titulo">{{ subasta.titulo }}</h2>
+    
+  <p class="subasta-meta">
+    <div>
+      <small>
+        <span class="glyphicon glyphicon-time"></span>
+        {{ subasta.dias > 0 ? 'Finaliza en ' ~ subasta.dias ~ ' dias.' : 'Finalizó'}} -- <em>{{ subasta.clicks }} clicks</em>           
+      </small>
+    </div>
+  </p>
+
+  <div class="subasta-detalle">
+    <div class="contenido clearfix">
+      <div class="col-md-2">
+        <a class="fancybox" rel="img-detalle" href="{{ uploads.dir ~ subasta.foto }}"><img style="width: 100%" src="{{ uploads.dir ~ subasta.foto }}"></a>
+      </div>
+      <div class="col-md-10">
+        <p><a href="{{ urlFor('categoria', {id: subasta.id_categoria}) }}"><span class="glyphicon glyphicon-tag"></span> {{ categorias[subasta.id_categoria] }}</a></p>
+        <p class="descripcion">{{ subasta.descripcion }}</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Ofertas</h3>
+
+  {% if usuario and usuario.id == subasta.id_usuario %}
+    <div class="ofertas">
+      {% for oferta in ofertas %}
+        <div class="oferta">
+          <strong>{{ oferta.usuario }}: </strong>
+          <p>{{ oferta.motivo }}</p>
+          <a href="{{ urlFor('subasta-seleccionar-ganador', {id: subasta.id, id_usuario: oferta.id_usuario}) }}" class="btn btn-primary btn-xs">Seleccionar ganador</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <nav>
+    <ul class="pager">
+      <li class="previous"><a href="javascript:window.history.back()">&larr; Volver</a></li>
+    </ul>
+  </nav>
+
+{% endblock %}

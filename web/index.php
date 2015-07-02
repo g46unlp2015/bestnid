@@ -9,13 +9,12 @@ require './config.php';
 session_start();
 
 $app = new \Slim\Slim (array(
-	'view' => new \Slim\Views\Twig(),
-	'templates.path' => './vistas'
+	'view' => new \Slim\Views\Twig()
 ));
 
-$app->container->singleton('db', function () use ($config) {
-	return new PDO('mysql:host='.$config['db.host'].';dbname='.$config['db.name'].';charset=utf8', 
-		$config['db.user'], $config['db.pass']
+$app->container->singleton('db', function () use ($opciones) {
+	return new PDO('mysql:host='.$opciones['db.host'].';dbname='.$opciones['db.name'].';charset=utf8', 
+		$opciones['db.user'], $opciones['db.pass']
 	);
 });
 
@@ -26,6 +25,8 @@ $app->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 // ------------------------------------------------------------------------
 
 $view = $app->view();
+
+$view->setTemplatesDirectory('./vistas');
 
 $view->parserOptions = array(
     'debug' => true,
@@ -39,7 +40,7 @@ $view->parserExtensions = array(
 // informacion global
 // ------------------------------------------------------------------------
 
-$app->container->set('config', $config);
+$app->container->set('opciones', $opciones);
 
 $app->container->set('categorias', function () use ($app) {
 	
@@ -70,7 +71,7 @@ $app->hook('slim.before.dispatch', function() use ($app) {
 
 	// uploads
 	$app->view()->setData('uploads', [
-		'dir' => $app->config['uploads.dir']
+		'dir' => $app->opciones['uploads.dir']
 	]);
 
 });

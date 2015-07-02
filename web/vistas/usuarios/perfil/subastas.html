@@ -14,18 +14,20 @@
       <div class="media-body">
         <h4 class="media-heading">
           <a href="{{ urlFor('subasta', {id: subasta.id}) }}">{{ subasta.titulo }}</a>
-          <div class="btn-group btn-group-xs pull-right" role="group">
-            <a href="{{ urlFor('modificar-subasta', {id: subasta.id}) }}" class="btn btn-default">Modificar</a>
-            <a href="{{ urlFor('borrar-subasta', {id: subasta.id}) }}" class="btn btn-danger"
-              onclick="return confirm('Deseas borrar esta subasta?');">Borrar</a>
-          </div>
+          {% if subasta.dias > 0 %}
+            <div class="btn-group btn-group-xs pull-right" role="group">
+              <a href="{{ urlFor('modificar-subasta', {id: subasta.id}) }}" class="btn btn-default">Modificar</a>
+              <a href="{{ urlFor('borrar-subasta', {id: subasta.id}) }}" class="btn btn-danger"
+                onclick="return confirm('Deseas borrar esta subasta?');">Borrar</a>
+            </div>
+          {% endif %}
         </h4>
         <p>{{ subasta.descripcion | length > 120 ? subasta.descripcion | slice(0, 120) ~ '...' : subasta.descripcion }}</p>
         <p class="subasta-meta">
           <small>
             <em>{{ subasta.clicks }} clicks</em><br>
             <span class="glyphicon glyphicon-time"></span>
-            Finaliza en {{ subasta.dias }} dias
+            {{ subasta.dias > 0 ? 'Finaliza en ' ~ subasta.dias ~ ' dias.' : 'Finalizó' }}
           </small>
         </p>
       </div>

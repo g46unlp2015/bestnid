@@ -1,0 +1,20 @@
+{% extends "usuarios/perfil/base.html" %}
+
+{% block contenido %}
+
+  <p class="lead">Mis preguntas</p>
+  
+  {% for pregunta in preguntas %}
+    <div class="media subasta-item">
+      <a href="{{ urlFor('subasta', {id: pregunta.id_subasta}) }}">{{ pregunta.subasta }}</a>
+      <p>
+        <strong>Pregunta: </strong>{{ pregunta.texto }}
+        <br>
+        {% if pregunta.id_respuesta %}
+          <strong style="color: red">Respuesta: </strong>{{ pregunta.texto_respuesta }}
+        {% endif %}
+      </p>
+    </div>
+  {% endfor %}
+
+{% endblock %}

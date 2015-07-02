@@ -83,11 +83,11 @@ body {
 	background: rgb(230, 230, 230);
 }
 
-.subasta-preguntas {
+.subasta-preguntas, .ofertas {
 	padding: 15px;
 }
 
-.subasta-pregunta {
+.subasta-pregunta, .oferta {
 	border-left: 2px solid gray;
 	padding-left: 15px;
 	margin-bottom: 15px;
