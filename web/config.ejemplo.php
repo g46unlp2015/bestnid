@@ -1,10 +1,12 @@
 <?php
 
-$config['server.host'] = $_SERVER['DOCUMENT_ROOT'];
-$config['uploads.dir'] = '/uploads/';
-$config['uploads.ruta'] = $config['server.host'] . $config['uploads.dir'];
+$opciones['server.host'] = $_SERVER['DOCUMENT_ROOT'];
+$opciones['uploads.dir'] = '/uploads/';
+$opciones['uploads.ruta'] = $opciones['server.host'] . $opciones['uploads.dir'];
 
-$config['db.host'] = '127.0.0.1';
-$config['db.name'] = '';
-$config['db.user'] = '';
-$config['db.pass'] = '';
+$opciones['db.host'] = '127.0.0.1';
+$opciones['db.name'] = '';
+$opciones['db.user'] = '';
+$opciones['db.pass'] = '';
+
+$opciones['contacto.email'] = ''

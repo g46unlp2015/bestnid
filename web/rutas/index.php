@@ -50,10 +50,11 @@ $app->post('/contacto', function () use ($app) {
 	extract($app->request->params());
 
 	$headers = "From: Bestnid <no-responder@bestnid.com.ar>\r\n";
+	$headers .= "Reply-To: ". $email ."\r\n";
 	$headers .= "MIME-Version: 1.0\r\n";
 	$headers .= "Content-Type: text/html; charset=utf-8\r\n";
 
-	$para = 'agustinbv@gmail.com';
+	$para = $app->opciones['contacto.email'];
 	$asunto = 'Contacto: ' . $nombre;
 
 	$body = '<p>Nombre: ' . $nombre . '</p>';
