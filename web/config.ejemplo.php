@@ -9,4 +9,4 @@ $opciones['db.name'] = '';
 $opciones['db.user'] = '';
 $opciones['db.pass'] = '';
 
-$opciones['contacto.email'] = ''
+$opciones['contacto.email'] = '';
