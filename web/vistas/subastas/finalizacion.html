@@ -33,7 +33,7 @@
         <div class="oferta">
           <strong>{{ oferta.usuario }}: </strong>
           <p>{{ oferta.motivo }}</p>
-          <a href="{{ urlFor('subasta-seleccionar-ganador', {id: subasta.id, id_usuario: oferta.id_usuario}) }}" class="btn btn-primary btn-xs">Seleccionar ganador</a>
+          <a href="{{ urlFor('subasta-seleccionar-ganador', {id: subasta.id, id_usuario: oferta.id_usuario}) }}" class="btn btn-primary btn-xs seleccionar-ganador">Seleccionar ganador</a>
         </div>
       {% endfor %}
     </div>
@@ -45,4 +45,15 @@
     </ul>
   </nav>
 
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('a.seleccionar-ganador').click(function () {
+      $(this).parent().empty().hide().append('<p>Enviando mails... <img src="/img/loader.gif"></p>').fadeIn()
+      $('a.seleccionar-ganador').on('click', false);
+    });
+  });
+</script>
 {% endblock %}

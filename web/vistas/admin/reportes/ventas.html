@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+
+{% block contenido %}
+
+  <form class="form-inline">
+    <div class="form-group">
+      <label for="desde">Desde: </label>
+      <input type="date" class="form-control" name="desde" id="desde" value="{{ filtros.desde }}">
+    </div>
+    <div class="form-group">
+      <label for="hasta">Hasta: </label>
+      <input type="date" class="form-control" name="hasta" id="hasta" value="{{ filtros.hasta }}">
+    </div>
+    <button type="submit" class="btn btn-default">Generar reporte</button>
+  </form>
+
+  <br>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Finalización</th>
+        <th>Titulo de subasta</th>
+        <th>Nombre Ganador</th>
+        <th>Email Ganador</th>
+      </tr> 
+    </thead>
+    <tbody>
+      {% for venta in ventas %}
+        <tr>       
+          <td>{{ venta.finalizacion | date("d-m-Y") }}</td>
+          <td><a href="{{ urlFor('subasta', {id: venta.id}) }}">{{ venta.titulo }}</a></td>
+          <td>{{ venta.ganador_nombre }}</td>
+          <td><a href="mailto:{{ venta.ganador_email }}">{{ venta.ganador_email }}</a></td>
+        </tr> 
+      {% endfor %}    
+    </tbody>
+  </table>
+
+{% endblock %}

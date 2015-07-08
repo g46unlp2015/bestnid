@@ -43,9 +43,15 @@
         <ul class="nav nav-pills pull-right">
           {% if usuario %}
             <li role="presentation">
-              <a href="{{ usuario.rol == 'admin' ? urlFor('admin') : urlFor('perfil') }}">
-                <span class="glyphicon glyphicon-user"></span> {{ usuario.nombre | split(' ') | first }}
-              </a>
+              {% if usuario.rol == 'admin' %}
+                <a href="{{ urlFor('admin') }}">
+                  <span class="glyphicon glyphicon-cog"></span> Administración
+                </a>
+              {% elseif usuario.rol == 'miembro' %}
+                <a href="{{ urlFor('perfil')  }}">
+                  <span class="glyphicon glyphicon-home"></span> {{ usuario.nombre | split(' ') | first }}
+                </a>
+              {% endif %}
             </li>
             <li role="presentation"><a href="{{ urlFor('logout') }}">Salir</a></li>
           {% else %}
@@ -95,14 +101,15 @@
             </div>
           </div>
 
-          <div class="panel">
-            <a class="list-group-item" href="{{ urlFor('publicar-subasta') }}"><span class="glyphicon glyphicon-bullhorn"></span> Publicar subasta</a>
-          </div>
+          {% if usuario.rol != 'admin' %}
+            <div class="panel">
+              <a class="list-group-item" href="{{ urlFor('publicar-subasta') }}"><span class="glyphicon glyphicon-bullhorn"></span> Publicar subasta</a>
+            </div>
+          {% endif %}
 
           <div class="panel panel-default">
             <div class="panel-heading">
-              <h3 class="panel-title">
-                Categorias
+              <h3 class="panel-title">Categorias
                 {% if usuario and usuario.rol == 'admin' %}
                   <span class="pull-right"> | <a href="{{ urlFor('admin-categorias')}}">editar</a></span>
                 {% endif %}
@@ -124,6 +131,22 @@
     </div><!--.row.main-->
 
   </div><!--.container-->
+
+  <footer>
+  {% block footer %}
+    <div class="container">
+      <div class="pull-left">
+        <ul class="list-inline">
+          <li>[ <a href="#">Ayuda</a> ]</li>
+          <li>[ <a href="{{ urlFor('contacto') }}">Contacto</a> ]</li>
+        </ul>
+      </div>
+      <div class="pull-right">
+        <span>Bestnid, 2015</span>
+      </div>
+    </div>
+  {% endblock %}
+  </footer>
 
   <script src="/dependencias/componentes/jquery/dist/jquery.min.js"></script>
   <script src="/dependencias/componentes/bootstrap/dist/js/bootstrap.min.js"></script>

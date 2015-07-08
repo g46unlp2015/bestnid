@@ -14,9 +14,10 @@ $app->group('/subastas', function () use ($app, $auth) {
 		try {
 			// datos subasta
 			$query = $app->db->prepare(
-				"SELECT *, DATEDIFF(finalizacion,NOW()) AS dias
-				FROM subastas 
-				WHERE id = :id"
+				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias
+				FROM subastas
+				INNER JOIN usuarios ON usuarios.id = subastas.id_usuario 
+				WHERE subastas.id = :id AND usuarios.activo = 1"
 			);
 			$query->execute([':id' => $id]);
 			$subasta = $query->fetch(PDO::FETCH_ASSOC);
@@ -36,7 +37,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 
 				// si no hay ganador
 				if ( empty($ganador) ) {
-					// si el usuario es el dueño (y no hay ganador)
+					// si el usuario es el dueño
 					// redireccionar a la pagina de finalizacion
 					if (isset($_SESSION['usuario'])) {
 						if ($subasta['id_usuario'] == $_SESSION['usuario']['id']) {
@@ -84,7 +85,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 			$preguntas = $query->fetchAll(PDO::FETCH_ASSOC);
 			
 		} catch (PDOException $e) {
-			$app->flash('error', 'Hubo un error en la base de datos');
+			$app->flash('error', 'Hubo un error en la base de datos' . $e->getMessage());
 			$app->redirect($app->urlFor('index'));
 		}
 
@@ -616,35 +617,36 @@ $app->group('/subastas', function () use ($app, $auth) {
 	})->name('responder');
 
 // ------------------------------------------------------------------------
-// AJAX: borrar pregunta
+// borrar pregunta
 // ------------------------------------------------------------------------
 
-	$app->post('/pregunta/borrar', $auth(), function () use ($app) {
-
-		// extrae los parametros en variables del mismo nombre que su "key"
-		extract($app->request->params());
-		$app->response->headers->set('Content-Type', 'application/json');
+	$app->get('/:id/pregunta/:id_pregunta/borrar', $auth(), function ($id, $id_pregunta) use ($app) {
 
 		try {
 
 			$query = $app->db->prepare(
-				"DELETE FROM preguntas WHERE id = :id AND id_usuario = :id_usuario"
+				"DELETE FROM preguntas 
+				WHERE id = :id 
+				AND id_usuario = :id_usuario"
 			);
 
 			$query->execute([
-				':id' => $id,
+				':id' => $id_pregunta,
 				':id_usuario' => $_SESSION['usuario']['id']
 			]);
 
 		} catch (PDOException $e) {
-			die( json_encode( ['status' => 403, 'error' => 'Hubo un error en la base de datos.']) );
+			$app->flash('error', 'Hubo un error en la base de datos');
+			$app->redirect($app->urlFor('index'));
 		}
 
 		if ( $query->rowCount() == 0 ) {
-			echo json_encode( ['status' => 403, 'error' => 'Esa pregunta no existe o no es tuyo.'] );
+			$app->flash('error', 'Esa pregunta no existe o no es tuyo');
 		} else {
-			echo json_encode( ['status' => 200] );
+			$app->flash('mensaje', 'Has borrado la pregunta.');
 		}
+
+		$app->redirect($app->urlFor('subasta', ['id' => $id]));
 
 	})->name('borrar-pregunta');
 
@@ -722,9 +724,9 @@ $app->group('/subastas', function () use ($app, $auth) {
 		try {
 			// datos subasta
 			$query = $app->db->prepare(
-				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto
+				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, ofertas.monto AS ganador_monto, ofertas.motivo AS ganador_motivo
 				FROM subastas 
-				INNER JOIN fotos ON fotos.id_subasta = subastas.id
+				INNER JOIN ofertas ON ofertas.id_subasta = subastas.id
 				WHERE subastas.id = :id AND subastas.id_usuario = :id_usuario"
 			);
 
@@ -774,20 +776,21 @@ $app->group('/subastas', function () use ($app, $auth) {
 			$subastador = $query->fetch(PDO::FETCH_ASSOC);
 
 		} catch (PDOException $e) {
-			$app->flash('error', 'Hubo un error en la base de datos');
+			$app->flash('error', 'Hubo un error en la base de datos' . $e->getMessage());
 			$app->redirect($app->urlFor('index'));
 		}
 
 		// mails
 		$headers = "From: Bestnid <no-responder@bestnid.com.ar>\r\n";
 		$headers .= "MIME-Version: 1.0\r\n";
-		$headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+		$headers .= "Content-Type: text/html; charset=utf-8\r\n";
 
 		$para = $ganador['email'];
 		$asunto = 'Ganaste la subasta: '. $subasta['titulo'];
 		
-		$body = '<p>Hola, '. $ganador['nombre'] .'! Ganaste la subasta <strong>"'. $subasta['titulo'] .'"</strong>. ';
-		$body .= '<br>Aqui te dejamos los datos del subastador para que finalicen la operación: </p>';
+		$body = '<p>Hola, '. $ganador['nombre'] .'! Ganaste la subasta <strong>"'. $subasta['titulo'] .'"</strong>.</p>';
+		$body .= '<p>Tu monto fue de <strong>$'. $subasta['ganador_monto'] .'</strong>';
+		$body .= '<p>Estos son los datos del subastador para que finalicen la operación: </p>';
 		$body .= '<ul>';
 		$body .= '<li>Nombre: ' . $subastador['nombre'] . '</li>';
 		$body .= '<li>Email: ' . $subastador['email'] . '</li>';
@@ -801,8 +804,9 @@ $app->group('/subastas', function () use ($app, $auth) {
 		$para = $subastador['email'];
 		$asunto = 'Ganador de la subasta: ' . $subasta['titulo'];
 		
-		$body = '<p>Hola, '. $subastador['nombre'] .'! Seleccionaste ganador de la subasta <strong>"'. $subasta['titulo'] .'"</strong>. ';
-		$body .= '<br>Aqui te dejamos los datos del ganador para que finalicen la operación: </p>';
+		$body = '<p>Hola, '. $subastador['nombre'] .'! Seleccionaste ganador de tu subasta <strong>"'. $subasta['titulo'] .'"</strong>.</p>';
+		$body .= '<p>Su motivo fue: <blockquote><em>"'. $subasta['ganador_motivo'] .'"</em></blockquote>Con un monto de: <strong>$'. $subasta['ganador_monto'] .'</strong></p>';
+		$body .= '<p>Estos son los datos del ganador para que finalicen la operación, </p>';
 		$body .= '<ul>';
 		$body .= '<li>Nombre: ' . $ganador['nombre'] . '</li>';
 		$body .= '<li>Email: ' . $ganador['email'] . '</li>';
@@ -818,7 +822,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 		// mail para el subastador
 		mail($para, $asunto, $body, $headers);
 
-		$app->redirect('subasta', ['id' => $id]);
+		$app->redirect($app->urlFor('subasta', ['id' => $id]));
 
 	})->name('subasta-seleccionar-ganador');
 
@@ -888,7 +892,10 @@ $app->group('/subastas', function () use ($app, $auth) {
 				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto
 				FROM subastas 
 				INNER JOIN fotos ON subastas.id = fotos.id_subasta
-				WHERE finalizacion >= NOW() AND id_categoria = :id
+				INNER JOIN usuarios ON usuarios.id = subastas.id_usuario
+				WHERE finalizacion >= NOW() 
+				AND id_categoria = :id 
+				AND usuarios.activo = 1
 				GROUP BY id
 				ORDER BY clicks DESC, dias ASC"
 			);
@@ -920,7 +927,9 @@ $app->group('/subastas', function () use ($app, $auth) {
 				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto
 				FROM subastas 
 				INNER JOIN fotos ON subastas.id = fotos.id_subasta
+				INNER JOIN usuarios ON usuarios.id = subastas.id_usuario
 				WHERE finalizacion >= NOW()
+				AND usuarios.activo = 1
 				GROUP BY id
 				ORDER BY dias ASC"
 			);
@@ -952,7 +961,9 @@ $app->group('/subastas', function () use ($app, $auth) {
 				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto
 				FROM subastas 
 				INNER JOIN fotos ON subastas.id = fotos.id_subasta
+				INNER JOIN usuarios ON usuarios.id = subastas.id_usuario
 				WHERE finalizacion >= NOW()
+				AND usuarios.activo = 1
 				GROUP BY id
 				ORDER BY clicks DESC"
 			);
@@ -984,7 +995,9 @@ $app->group('/subastas', function () use ($app, $auth) {
 				"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto 
 				FROM subastas 
 				INNER JOIN fotos ON subastas.id = fotos.id_subasta
+				INNER JOIN usuarios ON usuarios.id = subastas.id_usuario
 				WHERE finalizacion >= NOW()
+				AND usuarios.activo = 1
 				GROUP BY id
 				ORDER BY alta DESC"
 			);

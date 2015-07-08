@@ -91,19 +91,19 @@
       <div class="subasta-preguntas">
         {% for pregunta in preguntas %}
           <div class="subasta-pregunta">
+
             <strong>{{ pregunta.nombre }}: </strong>
             <p>{{ pregunta.texto }}</p>
+
             {% if pregunta.id_respuesta %}
               <div class="subasta-respuesta">
                 <em><strong style="color: red">Respuesta</strong></em>
                 <p>{{ pregunta.texto_respuesta }}</p>
               </div>
+            {% elseif usuario and usuario.id == pregunta.id_usuario %}
+              <p><a href="{{ urlFor('borrar-pregunta', {id: subasta.id, id_pregunta: pregunta.id}) }}" class="btn btn-default btn-xs" onclick="return confirm('Deseas borrar la pregunta?')">Borrar</a></p>
             {% endif %}
-            <!-- borrar comentario
-            {% if usuario and usuario.id == pregunta.id_usuario %}
-              <p><small><a href="#" class="responder" data-id="{{ pregunta.id }}">Borrar</a></small></p>
-            {% endif %}
-            -->
+
             {% if usuario and usuario.id == subasta.id_usuario and not pregunta.id_respuesta %}
               <p><a href="#" class="btn btn-default btn-xs responder" data-id="{{ pregunta.id }}">Responder</a></p>
               <form action="{{ urlFor('responder') }}" method="POST" id="responder-{{ pregunta.id }}" class="form-horizontal" role="form" style="display:none">
@@ -119,6 +119,7 @@
                 </div>
               </form>
             {% endif %}
+
           </div>
         {% endfor %}
       </div>

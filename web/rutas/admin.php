@@ -142,16 +142,27 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 // usuarios
 // ------------------------------------------------------------------------
 
-	$app->group('/usuarios', function () use ($app) {
+	$app->group('/reportes/usuarios', function () use ($app) {
 
 		// listar
 		$app->get('/', function () use ($app) {
+			$req = $app->request;
+
+			$desde = $req->params('desde') ? $req->params('desde') : date('Y-m-d', strtotime('-30 days'));
+			$hasta = $req->params('hasta') ? $req->params('hasta') : date('Y-m-d');
 			
 			try {
 
 				$query = $app->db->prepare(
-					"SELECT id, rol, email, nombre FROM usuarios"
+					"SELECT * FROM usuarios
+					WHERE alta >= :desde AND alta <= :hasta
+					ORDER BY activo DESC, alta DESC"
 				);
+
+				$query->execute([
+					':desde' => $desde,
+					':hasta' => $hasta
+				]);
 				
 				$query->execute();
 				$usuarios = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -161,18 +172,17 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 				$app->redirect($app->urlFor('admin-usuarios'));
 			}
 
-			$app->render('admin/usuarios/index.html', [
-				'usuarios' => $usuarios
+			$filtros = [
+				'desde' => $desde,
+				'hasta' => $hasta
+			];
+
+			$app->render('admin/reportes/usuarios.html', [
+				'usuarios' => $usuarios,
+				'filtros' => $filtros
 			]);
 
 		})->name('admin-usuarios');
-
-		// agregar
-		$app->post('/agregar', function() use ($app) {
-			
-			// igual que registracion, pero con rol
-
-		})->name('admin-agregar-usuario');
 
 		// borrar
 		$app->get('/:id/borrar', function ($id) use ($app) {
@@ -180,7 +190,9 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 			try {
 
 				$query = $app->db->prepare(
-					"DELETE FROM usuarios WHERE id = :id LIMIT 1"
+					"UPDATE usuarios 
+					SET activo = 0
+					WHERE id = :id"
 				);
 				
 				$query->execute([
@@ -193,16 +205,123 @@ $app->group('/admin', $auth('admin'), function () use ($app) {
 			}
 			
 			if ( $query->rowCount() == 0 ) {
-				$app->flash('error', 'no se ha encontrado ese usuario');
+				$app->flash('error', 'No se ha encontrado ese usuario');
 			} else {
-				$app->flash('mensaje', 'se ha borrado el usuario!');
+				$app->flash('mensaje', 'Se ha deshabilitado el usuario.');
 			}
 
 			$app->redirect($app->urlFor('admin-usuarios'));
 
 		})->conditions(['id' => '\d+'])->name('admin-borrar-usuario');
 
+		// habilitar
+		$app->get('/:id/habilitar', function ($id) use ($app) {
+			
+			try {
+
+				$query = $app->db->prepare(
+					"UPDATE usuarios 
+					SET activo = 1
+					WHERE id = :id"
+				);
+				
+				$query->execute([
+					':id' => $id 
+				]);
+
+			} catch (PDOException $e) {
+				$app->flash('error', 'Hubo un error en la base de datos');
+				$app->redirect($app->urlFor('admin-usuarios'));
+			}
+			
+			if ( $query->rowCount() == 0 ) {
+				$app->flash('error', 'No se ha encontrado ese usuario');
+			} else {
+				$app->flash('mensaje', 'Se ha habilitado el usuario.');
+			}
+
+			$app->redirect($app->urlFor('admin-usuarios'));
+
+		})->conditions(['id' => '\d+'])->name('admin-habilitar-usuario');
+
+		// cambiar rol
+		$app->post('/cambiar-rol', function () use ($app) {
+
+			extract($app->request->params());
+			$app->response->headers->set('Content-Type', 'application/json');
+			
+			try {
+
+				$query = $app->db->prepare(
+					"UPDATE usuarios 
+					SET rol = :rol
+					WHERE id = :uid"
+				);
+				
+				$query->execute([
+					':rol' => $rol,
+					':uid' => $uid 
+				]);
+
+			} catch (PDOException $e) {
+				die( json_encode( ['status' => 403, 'error' => 'Hubo un error en la base de datos: ' . $e->getMessage()]) );
+			}
+			
+			if ( $query->rowCount() == 0 ) {
+				echo json_encode( ['status' => 403, 'error' => 'No existe ese usuario.'] );
+			} else {
+				echo json_encode( ['status' => 200] );
+			}
+
+		})->conditions(['id' => '\d+'])->name('admin-cambiar-rol');
+
 	});
+
+// ------------------------------------------------------------------------
+// reporte ventas entre dos fechas
+// ------------------------------------------------------------------------
+
+	$app->get('/reportes/ventas', function () use ($app) {
+		$req = $app->request;
+		$ventas = array();	
+
+		$desde = $req->params('desde') ? $req->params('desde') : date('Y-m-d', strtotime('-30 days'));
+		$hasta = $req->params('hasta') ? $req->params('hasta') : date('Y-m-d');
+
+		try {
+
+			$query = $app->db->prepare(
+				"SELECT subastas.*, usuarios.nombre AS ganador_nombre, usuarios.email AS ganador_email
+				FROM subastas 
+				INNER JOIN ganadores ON ganadores.id_subasta = subastas.id
+				INNER JOIN usuarios ON usuarios.id = ganadores.id_usuario
+				WHERE subastas.finalizacion >= :desde AND subastas.finalizacion <= :hasta
+				ORDER BY subastas.finalizacion"
+			);
+
+			$query->execute([
+				':desde' => $desde,
+				':hasta' => $hasta
+			]);
+			
+			$ventas = $query->fetchAll(PDO::FETCH_ASSOC);
+
+		} catch (PDOException $e) {
+			$app->flash('error', 'Hubo un error en la base de datos' . $e->getMessage());
+			$app->redirect('/');
+		}
+
+		$filtros = [
+			'desde' => $desde,
+			'hasta' => $hasta
+		];
+
+		$app->render('admin/reportes/ventas.html', [
+				'ventas' => $ventas,
+				'filtros' => $filtros
+		]);
+
+	})->name('reporte-ventas');
 
 });
 

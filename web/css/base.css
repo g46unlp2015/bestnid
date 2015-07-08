@@ -1,6 +1,10 @@
+html {
+	background: #eee;
+}
+
 body {
+	background: white;
 	padding-top: 20px;
-	padding-bottom: 20px;
 }
 
 .logo {
@@ -123,4 +127,12 @@ a.borrar-foto {
 	position: absolute;
 	right: 0;
 	top: 0;
+}
+
+footer {
+	color: #999;
+	margin-top: 40px;
+	margin-bottom: 0px;
+	background: #eee;
+	padding: 40px;
 }

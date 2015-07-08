@@ -19,8 +19,7 @@
         <p class="subasta-meta">
           <small>
             <em>{{ subasta.clicks }} clicks</em><br>
-            <span class="glyphicon glyphicon-time"></span>
-            Finaliza en {{ subasta.dias }} dias
+            <span class="glyphicon glyphicon-time"></span> {{ subasta.dias > 0 ? 'Finaliza en ' ~ subasta.dias ~ ' dias.' : 'Finalizó'}}
           </small>
           <a href="{{ urlFor('subasta', {id: subasta.id}) }}" class="btn btn-default pull-right" role="button">Ver subasta</a>
         </p>

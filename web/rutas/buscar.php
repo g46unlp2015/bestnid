@@ -32,9 +32,11 @@ $app->get('/buscar', function () use ($app) {
 			"SELECT subastas.*, DATEDIFF(finalizacion,NOW()) AS dias, fotos.ruta AS foto 
 			FROM subastas 
 			INNER JOIN fotos ON subastas.id = fotos.id_subasta 
+			INNER JOIN usuarios ON usuarios.id = subastas.id_usuario
 			WHERE titulo LIKE CONCAT('%', :q, '%')
-			AND finalizacion >= :desde AND finalizacion >= NOW()
+			AND finalizacion >= :desde
 			AND finalizacion <= :hasta
+			AND usuarios.activo = 1
 			GROUP BY subastas.id
 			{$sql_categoria} {$sql_order}"
 		);

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<div class="jumbotron" style="background-color: inherit">
+  <!-- formulario login -->
+  <div class="col-md-8 center-block">
+    <div class="panel panel-default">
+      <div class="panel-heading">Contacto</div>
+      <div class="panel-body">
+
+        <form id="contacto" action="{{ urlFor('contacto-post') }}" method="POST" class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="nombre" class="col-sm-3 control-label">Nombre: </label>
+            <div class="col-sm-9">
+              <input type="text" class="form-control" name="nombre" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="col-sm-3 control-label">Email: </label>
+            <div class="col-sm-9">
+              <input type="email" class="form-control" name="email" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="mensaje" class="col-sm-3 control-label">Mensaje: </label>
+            <div class="col-sm-9">
+              <textarea class="form-control" name="mensaje" rows="5" required></textarea>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="col-sm-9 col-sm-offset-3">
+              <button id="enviar" type="submit" class="btn btn-primary">Enviar</button>
+              <a href="{{ urlFor('index') }}" class="btn btn-danger">Cancelar</a>
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+  
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('button#enviar').click(function() {
+      $(this).parent().empty().hide().append('<p>Enviando mensaje... <img src="/img/loader.gif"></p>').fadeIn();
+      $('form#contacto').submit();
+    });
+  });
+</script>
+{% endblock %}

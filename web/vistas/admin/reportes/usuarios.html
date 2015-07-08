@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+
+{% block contenido %}
+
+  <form class="form-inline">
+    <div class="form-group">
+      <label for="desde">Desde: </label>
+      <input type="date" class="form-control" name="desde" id="desde" value="{{ filtros.desde }}">
+    </div>
+    <div class="form-group">
+      <label for="hasta">Hasta: </label>
+      <input type="date" class="form-control" name="hasta" id="hasta" value="{{ filtros.hasta }}">
+    </div>
+    <button type="submit" class="btn btn-default">Generar reporte</button>
+  </form>
+
+  <br>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Alta</th>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th id="rol">Rol </th>
+        <th>Borrar</th>
+      </tr> 
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+        {% if u.id != usuario.id %}
+          <tr>       
+            <td>{{ u.alta | date("d-m-Y") }}</td>
+            <td>{{ u.nombre }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+              <select id="rol" data-usuario-id="{{ u.id }}">
+                {% for rol in ['miembro', 'admin'] %}
+                  {% if u.rol == rol %}
+                    <option value="{{ rol }}" selected>{{ rol }}</option>
+                  {% else %}
+                    <option value="{{ rol }}">{{ rol }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </td>
+            {% if u.activo %}
+              <td><a class="text-danger" href="{{ urlFor('admin-borrar-usuario', { 'id': u.id }) }}">deshabilitar</a></td>
+            {% else %}
+              <td><a style="color:gray" href="{{ urlFor('admin-habilitar-usuario', { 'id': u.id }) }}">habilitar</a></td>
+            {% endif %}
+          </tr> 
+        {% endif %}
+      {% endfor %}    
+    </tbody>
+  </table>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('select#rol').on('change', function(e) {
+      console.log(e.target.value)
+      var uid = $(this).data('usuario-id')
+      var url = '{{ urlFor('admin-cambiar-rol') }}'
+      $.post(url, {
+        'rol': e.target.value,
+        'uid': uid
+      }, function (data) {
+        if (data.status == 200) {
+          $('<span class="glyphicon glyphicon-ok" style="color:green"></span>').appendTo('th#rol').delay(1000).fadeOut();
+        } else {
+          console.log(data.error)
+          $('<span class="glyphicon glyphicon-remove" style="color:red"></span>').appendTo('th#rol').delay(1000).fadeOut();
+        }
+      })
+    })
+  })
+</script>
+{% endblock %}
