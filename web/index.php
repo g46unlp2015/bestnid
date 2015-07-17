@@ -86,6 +86,8 @@ $auth = function ( $rol = 'miembro' ) {
 
     	$app = \Slim\Slim::getInstance();
 
+    	$app->flash('referrer', $app->request->getUrl() . $app->request->getPath());
+
     	if ( isset($_SESSION['usuario']) ) {
     		if ($_SESSION['usuario']['rol'] !== $rol ) {	            
 	            $app->flash('error', 'No tienes permiso para ver esta pagina.');

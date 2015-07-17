@@ -10,6 +10,7 @@
       <div class="panel-body">
 
         <form action="{{ urlFor('login-post') }}" method="POST" class="form-horizontal" role="form">
+          <input type="hidden" name="referrer" value="{{ flash.referrer }}">
           <div class="form-group">
             <label for="email" class="col-sm-3 control-label">Email: </label>
             <div class="col-sm-9">

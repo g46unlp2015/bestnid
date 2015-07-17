@@ -86,7 +86,8 @@ $app->get('/login', function() use ($app) {
 $app->post('/login', function() use ($app) {
 
 	$req = $app->request;
-	
+
+	$referrer = $req->params('referrer');
 	$email = $req->params('email');
 	$password = $req->params('password');
 
@@ -114,6 +115,7 @@ $app->post('/login', function() use ($app) {
 
 	if ( empty($usuario) ) {
 		$app->flash('error', 'Email o contraseña incorrecta');
+		$app->flash('referrer', $referrer);
 		$app->redirect($app->urlFor('login'));
 	} else {
 		$_SESSION['usuario']['id'] = $usuario['id'];
@@ -122,7 +124,12 @@ $app->post('/login', function() use ($app) {
 		$app->flash('mensaje', 'Bienvenido ' . $usuario['nombre'] . ', has iniciado sesión.');
 	}	
 
-	$app->redirect($app->urlFor('index'));
+	// referrer
+	if ( empty($referrer) ) {
+		$app->redirect($app->urlFor('index'));
+	} else {
+		$app->redirect($referrer);
+	}
 
 })->name('login-post');
 
@@ -195,7 +202,7 @@ $app->group('/perfil', $auth(), function () use ($app) {
 				INNER JOIN ofertas ON ofertas.id_usuario = usuarios.id
 				INNER JOIN subastas ON subastas.id = ofertas.id_subasta
 				INNER JOIN fotos ON fotos.id_subasta = ofertas.id_subasta
-				WHERE finalizacion >= NOW() AND usuarios.id = :id
+				WHERE usuarios.id = :id
 				GROUP BY id"
 			);
 
@@ -391,14 +398,26 @@ $app->group('/perfil', $auth(), function () use ($app) {
 		
 		if ( $query->rowCount() == 0 ) {
 			$app->flash('error', 'No se ha encontrado ese usuario');
-		} else {
-			$app->flash('mensaje', 'Se ha eliminado tu cuenta');
+			$app->redirect($app->urlFor('index'));
 		}
 
-		session_destroy();
-
-		$app->redirect($app->urlFor('index'));
+		$app->redirect($app->urlFor('mensaje-despedida'));
 
 	})->conditions(['id' => '\d+'])->name('perfil-borrar');
+
+	// mensaje despedida
+	$app->get('/despedida', function () use ($app) {
+
+		$referrer = $app->request->getReferrer();
+		$borrar = $app->request->getUrl() . $app->urlFor('perfil-borrar');
+
+		if ($referrer == $borrar) {
+			session_destroy();
+			$app->render('usuarios/despedida.html');
+		} else {
+			$app->urlFor('index');
+		}
+		
+	})->name('mensaje-despedida');
 
 });
