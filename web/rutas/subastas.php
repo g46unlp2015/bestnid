@@ -501,7 +501,7 @@ $app->group('/subastas', function () use ($app, $auth) {
 				"UPDATE ofertas SET monto = :monto WHERE id = :id AND id_usuario = :id_usuario"
 			);
 
-			$query->execute([
+			$ok = $query->execute([
 				':id' => $id_oferta,
 				':id_usuario' => $_SESSION['usuario']['id'],
 				':monto' => $monto
@@ -511,10 +511,10 @@ $app->group('/subastas', function () use ($app, $auth) {
 			$app->flash('error', 'No se pudo actualizar tu oferta');
 		}
 
-		if ( $query->rowCount() == 0 ) {
-			$app->flash('error', 'No existe esa oferta o no tienes permiso');
-		} else {
+		if ( $ok ) {
 			$app->flash('mensaje', 'Se ha modificado tu oferta');
+		} else {
+			$app->flash('error', 'No existe esa oferta o no tienes permiso');
 		}
 
 		$app->redirect($app->urlFor('subasta', ['id' => $id_subasta]));

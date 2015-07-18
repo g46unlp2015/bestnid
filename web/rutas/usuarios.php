@@ -20,7 +20,7 @@ $app->post('/registracion', function() use ($app) {
 
 	try {
 
-		$query = $app->db->prepare("SELECT id FROM usuarios WHERE email = :email LIMIT 1");
+		$query = $app->db->prepare("SELECT id FROM usuarios WHERE email = :email AND activo = 1");
 		$query->execute([':email' => $email]);
 		$usuario_existe = $query->fetch();
 
@@ -387,7 +387,7 @@ $app->group('/perfil', $auth(), function () use ($app) {
 				WHERE id = :id"
 			);
 			
-			$query->execute([
+			$ok = $query->execute([
 				':id' => $_SESSION['usuario']['id']
 			]);
 
@@ -396,7 +396,7 @@ $app->group('/perfil', $auth(), function () use ($app) {
 			$app->redirect($app->urlFor('admin-usuarios'));
 		}
 		
-		if ( $query->rowCount() == 0 ) {
+		if ( ! $ok ) {
 			$app->flash('error', 'No se ha encontrado ese usuario');
 			$app->redirect($app->urlFor('index'));
 		}
@@ -408,15 +408,8 @@ $app->group('/perfil', $auth(), function () use ($app) {
 	// mensaje despedida
 	$app->get('/despedida', function () use ($app) {
 
-		$referrer = $app->request->getReferrer();
-		$borrar = $app->request->getUrl() . $app->urlFor('perfil-borrar');
-
-		if ($referrer == $borrar) {
-			session_destroy();
-			$app->render('usuarios/despedida.html');
-		} else {
-			$app->urlFor('index');
-		}
+		session_destroy();
+		$app->render('usuarios/despedida.html');
 		
 	})->name('mensaje-despedida');
 
