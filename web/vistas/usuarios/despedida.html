@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+<div class="jumbotron" style="background-color: inherit">
+  <div class="col-md-5 center-block">
+    <h2>Su cuenta ha sido eliminada</h2>
+    <p>Lo redireccionaremos a la página de inicio</p>
+  </div>
+</div>
+  
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+  setTimeout(function() {
+    window.location = "{{ urlFor('index')}}"
+  }, 2800);
+</script>
+{% endblock %}

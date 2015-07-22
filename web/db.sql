@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-07-2015 a las 18:23:34
+-- Tiempo de generación: 22-07-2015 a las 03:21:34
 -- Versión del servidor: 5.6.24
 -- Versión de PHP: 5.6.8
 
@@ -19,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `bestnid`
 --
+CREATE DATABASE IF NOT EXISTS `bestnid` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `bestnid`;
 
 -- --------------------------------------------------------
 
@@ -38,8 +40,8 @@ CREATE TABLE IF NOT EXISTS `categorias` (
 --
 
 CREATE TABLE IF NOT EXISTS `fotos` (
-  `id` int(11) NOT NULL,
-  `id_subasta` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL,
+  `id_subasta` int(11) unsigned NOT NULL,
   `ruta` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -51,8 +53,8 @@ CREATE TABLE IF NOT EXISTS `fotos` (
 
 CREATE TABLE IF NOT EXISTS `ganadores` (
   `id` int(10) unsigned NOT NULL,
-  `id_usuario` int(11) NOT NULL,
-  `id_subasta` int(11) NOT NULL
+  `id_usuario` int(11) unsigned NOT NULL,
+  `id_subasta` int(11) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -77,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `ofertas` (
 --
 
 CREATE TABLE IF NOT EXISTS `preguntas` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL,
   `texto` text NOT NULL,
   `id_usuario` int(11) NOT NULL,
   `id_subasta` int(11) NOT NULL
@@ -90,9 +92,9 @@ CREATE TABLE IF NOT EXISTS `preguntas` (
 --
 
 CREATE TABLE IF NOT EXISTS `respuestas` (
-  `id` int(11) NOT NULL,
+  `id` int(11) unsigned NOT NULL,
   `texto` text NOT NULL,
-  `id_pregunta` int(11) NOT NULL
+  `id_pregunta` int(11) unsigned NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -105,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `subastas` (
   `id` int(11) unsigned NOT NULL,
   `titulo` varchar(120) NOT NULL,
   `descripcion` text NOT NULL,
-  `id_usuario` int(11) NOT NULL,
+  `id_usuario` int(11) unsigned NOT NULL,
   `id_categoria` int(10) unsigned NOT NULL,
   `clicks` int(11) NOT NULL,
   `alta` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
